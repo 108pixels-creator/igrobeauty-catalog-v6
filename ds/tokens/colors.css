@@ -1,0 +1,125 @@
+/* ==========================================================================
+   IGRObeauty — Color tokens (v7)
+   Every name equals its Figma variable path with "/" → "-" (gold/base → --gold-base,
+   status/error → --status-error). 1) Primitives = the approved brand palette.
+   2) Semantic tokens = what components use. Components reference ONLY the semantic
+   block. Accent and Gold are too light for small text, so each has a text-safe "-ink" twin.
+   v6 names still work through tokens/deprecated.css until v8.
+   ========================================================================== */
+:root {
+  /* --- green/* — brand greens (approved palette · БРЕНД · ЗЕЛЁНЫЕ) --- */
+  --green-house:      #1a3328; /* House — deepest green: dark bands, footer, active tab/page, dark button */
+  --green-primary:    #004522; /* IGRO Green — brand signal: h1, totals, selected titles */
+  --green-uplift:     #006b3e; /* Uplift — primary CTA fill, success text */
+  --green-accent:     #158f45; /* Accent — selection & indicators (fills, borders, focus). 4.2:1 on white — not for small text */
+  --green-accent-ink: #12803d; /* Accent, text-safe — links, discounts, white-on-green fills (5.0:1) */
+  --green-light:      #b0dec5; /* IGRO Mint — brand badges, active menu item, timeline tags */
+  --green-sage:       #8faf9b; /* Sage — decorative only (2.2:1 on light), never text */
+
+  /* --- gold/* — loyalty & savings ONLY, never a general accent --- */
+  --gold-base:        #cba258; /* fills, borders, rating stars, meters — not for text (2.4:1) */
+  --gold-ink:         #8c6a26; /* gold, text-safe on light surfaces (5.0:1) */
+  --gold-light:       #dfc49d; /* loyalty borders, ring tracks */
+  --gold-lightest:    #faf6ee; /* loyalty surface */
+
+  /* --- neutral/* — surfaces (approved palette · ПОВЕРХНОСТИ И ЛИНИИ) --- */
+  --neutral-canvas:       #ffffff; /* Canvas — cards, modals, fields */
+  --neutral-surface-soft: #f9f9f9; /* Surface Soft — page background; chips, tiles, menus on white */
+  --neutral-canvas-warm:  #f2f0eb; /* Canvas Warm — warm cream for promo / hero bands only */
+  --neutral-ceramic:      #edebe9; /* Ceramic — sunken areas, skeletons, tracks, ghost hover */
+
+  /* --- ink/* and on-dark/* --- */
+  --ink-base:         #212121;                 /* 16:1 on white */
+  --ink-soft:         #6b6b6b;                 /* 5.3:1 on white */
+  --ink-faint:        rgba(33, 33, 33, 0.40);  /* disabled & decorative only (2.4:1) */
+  --on-dark-base:     #ffffff;
+  --on-dark-soft:     rgba(255, 255, 255, 0.70);
+  --on-dark-faint:    rgba(255, 255, 255, 0.40); /* decorative on dark (sheet grab handle) */
+
+  /* --- line/* --- */
+  --line-hairline:        #d6dbde; /* Silver / Hairline — dividers, card & tile outlines (decorative) */
+  --line-hairline-faint:  #e7e7e7; /* table row separators, list dividers */
+  --line-hairline-strong: #8a9297; /* form-control borders — 3.2:1 on white (WCAG 1.4.11) */
+
+  /* ======================================================================
+     SEMANTIC — reference these in components, never the primitives.
+     Two green roles, never mixed:
+       --action-cta    = FILL of primary buttons (Uplift). Hover lightens to --action-cta-hover + lift.
+       --action-accent = SELECTION & indicators (Accent): checkbox, radio dot, switch, steps done, focus.
+     ====================================================================== */
+  /* action/* — brand & actions */
+  --action-brand:         var(--green-primary);    /* IGRO Green ink: totals, selected titles, brand marks */
+  --action-cta:           var(--green-uplift);
+  --action-cta-hover:     var(--green-accent-ink); /* lighter than --action-cta, still 5.0:1 with white */
+  --action-accent:        var(--green-accent);
+  --action-accent-strong: var(--green-accent-ink); /* Accent fill that carries white text (solid badge, discount pill) */
+  --action-reward:        var(--gold-base);
+  --action-dark-hover:    #0f2119;                 /* House control hover */
+
+  /* text/* */
+  --text-heading:        var(--green-primary);
+  --text-title:          var(--ink-base);
+  --text-default:        var(--ink-base);         /* body copy */
+  --text-muted:          var(--ink-soft);         /* secondary text, captions, field labels */
+  --text-disabled:       var(--ink-faint);        /* disabled controls only */
+  --text-link:           var(--green-accent-ink);
+  --text-accent:         var(--green-accent-ink); /* discounts, required *, completed steps */
+  --text-success:        var(--green-uplift);
+  --text-reward:         var(--gold-ink);
+  --text-reward-on-dark: var(--gold-base);        /* gold text on House bands (5.7:1) — gold-ink is too dark there */
+  --text-on-dark:        var(--on-dark-base);
+  --text-on-dark-muted:  var(--on-dark-soft);
+  --text-placeholder:    #707070;                 /* 4.9:1 on white */
+
+  /* surface/* */
+  --surface-page:        var(--neutral-surface-soft); /* #f9f9f9 */
+  --surface-card:        var(--neutral-canvas);
+  --surface-subtle:      var(--neutral-surface-soft); /* soft-grey fills on white: chips, picked values, selected rows, search field */
+  --surface-promo:       var(--neutral-canvas-warm);  /* hero & promo bands */
+  --surface-sunken:      var(--neutral-ceramic);
+  --surface-hover:       #fcfcfb;                     /* row / section header hover */
+  --surface-inverse:     var(--green-house);          /* active tab / page, dark button, tooltip, avatar */
+  --surface-brand:       var(--green-light);
+  --surface-reward:      var(--gold-lightest);
+  --surface-band-dark:   var(--green-house);          /* full-width dark bands, footer */
+
+  /* border/* */
+  --border-default:      var(--line-hairline);        /* dividers, cards, buttons */
+  --border-subtle:       var(--line-hairline-faint);
+  --border-control:      var(--line-hairline-strong); /* inputs, checkbox, radio, switch (off) */
+  --border-hover:        #a9b1b6;                     /* tiles on hover */
+  --border-strong:       var(--ink-base);
+  --border-inverse:      var(--green-house);
+  --border-reward:       var(--gold-light);
+  --border-focus:        var(--action-accent);
+
+  /* wash/* — interaction washes; use these, never raw rgba */
+  --wash-cta:            rgba(0,107,62,0.10);     /* outline-button hover */
+  --wash-accent:         rgba(21,143,69,0.04);    /* hover on selectable */
+  --wash-accent-strong:  rgba(21,143,69,0.05);    /* selected icon card */
+  --wash-house:          rgba(26,51,40,0.04);     /* hover on outline option */
+  --wash-house-strong:   rgba(26,51,40,0.05);     /* selected outline option */
+  --wash-on-dark:        rgba(255,255,255,0.12);
+  --decor-on-dark:       var(--on-dark-faint);    /* decor/on-dark — decorative marks on dark (sheet grab handle), never text */
+
+  /* selected/* */
+  --selected-bg:           #f1f8f5;               /* soft-selected option */
+  --selected-bg-hover:     #eaf4ee;
+  --selected-border:       rgba(21,143,69,0.28);
+  --selected-border-hover: rgba(21,143,69,0.45);
+
+  /* status/* — feedback colours (role-named, so they are semantic tokens with literal values) */
+  --status-error:        #c82014;
+  --status-error-hover:  #b3261e;
+  --status-error-tint:   #f0e6e0;                 /* invalid-field / error-badge background */
+  --status-warning:      #f7b529;                 /* indicator colour only — 1.8:1, never text */
+  --status-notice-ink:   #8a6500;                 /* amber text on --status-notice-bg (5.0:1) */
+  --status-notice-bg:    rgba(247,181,41,0.10);   /* amber notice / savings strip */
+  --status-success:      var(--green-uplift);
+  --status-success-tint: #e8eee8;                 /* valid-field / success-badge background */
+  --status-info:         #2d747e;                 /* Info Teal */
+
+  /* overlay/* */
+  --overlay-scrim:       rgba(26,51,40,0.45);     /* modal backdrop */
+  --overlay-scrim-image: linear-gradient(to top, rgba(26,51,40,0.80), rgba(26,51,40,0) 60%); /* @kind other */ /* text over photos — the only allowed gradient (Figma paint style overlay/scrim-image) */
+}

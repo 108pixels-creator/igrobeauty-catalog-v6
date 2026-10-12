@@ -1,0 +1,18 @@
+/* ==========================================================================
+   IGRObeauty — Layout tokens (v7): stacking order and breakpoints.
+   z/* keeps overlays in one order: a toast shows above an open dialog, a tooltip above both.
+   breakpoint/* — CSS custom properties cannot be used inside @media, so media queries
+   repeat the numbers: @media (min-width: 768px) / (min-width: 1280px). JS can read the tokens.
+   ========================================================================== */
+:root {
+  /* --- z/* --- */
+  --z-dropdown: 20;    /* @kind other */ /* listbox, menu, autocomplete — above the page */
+  --z-sticky:   100;   /* @kind other */ /* sticky header, sticky totals */
+  --z-overlay:  1000;  /* @kind other */ /* dialog, bottom sheet and their scrim */
+  --z-toast:    1100;  /* @kind other */ /* ToastRegion — stays visible over an open dialog */
+  --z-tooltip:  1200;  /* @kind other */ /* tooltip, toggletip — the topmost layer */
+
+  /* --- breakpoint/* --- */
+  --breakpoint-md: 768px;  /* @kind other */ /* tablet and up: two-column layouts */
+  --breakpoint-lg: 1280px; /* @kind other */ /* desktop: full navigation, side panels */
+}

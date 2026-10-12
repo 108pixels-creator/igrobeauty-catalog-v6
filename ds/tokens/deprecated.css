@@ -1,0 +1,73 @@
+/* ==========================================================================
+   IGRObeauty — deprecated v6 token names (kept for one major version).
+   v7 renamed tokens so that every CSS name equals its Figma variable path
+   ("/" → "-"). Old names still resolve here; they will be removed in v8.
+   Migration table: readme §12. The adherence lint flags every old name.
+   ========================================================================== */
+:root {
+  --gold: var(--gold-base);
+  --canvas: var(--neutral-canvas);
+  --surface-soft: var(--neutral-surface-soft);
+  --canvas-warm: var(--neutral-canvas-warm);
+  --ceramic: var(--neutral-ceramic);
+  --ink: var(--ink-base);
+  --on-dark: var(--on-dark-base);
+  --hairline: var(--line-hairline);
+  --hairline-faint: var(--line-hairline-faint);
+  --hairline-strong: var(--line-hairline-strong);
+  --brand: var(--action-brand);
+  --cta: var(--action-cta);
+  --cta-hover: var(--action-cta-hover);
+  --accent: var(--action-accent);
+  --accent-strong: var(--action-accent-strong);
+  --reward: var(--action-reward);
+  --dark-hover: var(--action-dark-hover);
+  --placeholder: var(--text-placeholder);
+  --band-dark: var(--surface-band-dark);
+  --tint-cta: var(--wash-cta);
+  --accent-wash: var(--wash-accent);
+  --accent-wash-strong: var(--wash-accent-strong);
+  --house-wash: var(--wash-house);
+  --house-wash-strong: var(--wash-house-strong);
+  --on-dark-wash: var(--wash-on-dark);
+  --error: var(--status-error);
+  --error-hover: var(--status-error-hover);
+  --error-tint: var(--status-error-tint);
+  --warning: var(--status-warning);
+  --notice-ink: var(--status-notice-ink);
+  --notice-bg: var(--status-notice-bg);
+  --success: var(--status-success);
+  --success-tint: var(--status-success-tint);
+  --info: var(--status-info);
+  --scrim: var(--overlay-scrim);
+  --scrim-image: var(--overlay-scrim-image);
+  --text-display: var(--font-size-display);
+  --text-jumbo: var(--font-size-jumbo);
+  --text-hero: var(--font-size-hero);
+  --text-promo: var(--font-size-promo);
+  --text-price: var(--font-size-price);
+  --text-h1: var(--font-size-h1);
+  --text-h2: var(--font-size-h2);
+  --text-h3: var(--font-size-h3);
+  --text-h4: var(--font-size-h4);
+  --text-h5: var(--font-size-h5);
+  --text-body-lg: var(--font-size-body-lg);
+  --text-body: var(--font-size-body);
+  --text-body-md: var(--font-size-body-md);
+  --text-body-sm: var(--font-size-body-sm);
+  --text-micro: var(--font-size-micro);
+  --radius-btn: var(--radius-control);
+  --radius-card: var(--radius-plate);
+  --radius-sm: var(--radius-field);
+  --radius-md: var(--radius-panel);
+  --radius-lg: var(--radius-sheet);
+  --radius-full: var(--radius-pill);
+  --h-control-sm: var(--size-control-sm);
+  --h-control-md: var(--size-control-md);
+  --h-control-lg: var(--size-control-lg);
+  --h-field: var(--size-field);
+  --disabled-opacity: var(--opacity-disabled);
+  --gutter: var(--gutter-sm);
+  --drop-shadow-card: var(--shadow-drop-card);
+  --radius-xs: var(--radius-control); /* receipt corners use --radius-plate */
+}
