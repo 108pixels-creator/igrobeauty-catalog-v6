@@ -612,6 +612,11 @@ ul { margin: 0; padding: 0; list-style: none; }
    у Tag ДС выбранный — белый с тёмной рамкой (решение пользователя 12.10) */
 .ig-toolbar .igro-tag[aria-pressed="true"],
 .ig-toolbar .igro-tag--selected { background: var(--surface-inverse); border-color: var(--surface-inverse); color: var(--text-on-dark); }
+/* снимаемый чип (бренд или линия, выбранные в карточке): крестик на тёмной заливке */
+.ig-toolbar .igro-tag__remove { color: var(--text-on-dark-muted); transition: color var(--duration-fast) ease; }
+@media (hover: hover) {
+  .ig-toolbar .igro-tag__remove:hover { color: var(--text-on-dark); }
+}
 
 /* медаль на чипе эксклюзивного бренда */
 .ig-tag-hit { position: relative; }
@@ -717,15 +722,29 @@ ul { margin: 0; padding: 0; list-style: none; }
 }
 /* есть фото — поле белое: товары сняты на белом фоне (как в ЛК6); серое поле остаётся у товаров без фото */
 .ig-card__media--img { background: var(--surface-card); }
-.ig-card__img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
+.ig-card__img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; transition: transform var(--duration-base) var(--ease-standard); }
+/* картинка и название ведут в карточку товара: при наведении картинка чуть увеличивается внутри поля,
+   название зеленеет и подчёркивается. Сама карточка не меняется */
+.ig-card__media { cursor: pointer; }
+.ig-card__link { color: inherit; text-decoration: none; text-decoration-thickness: 1px; text-underline-offset: 3px; transition: color var(--duration-fast) ease; }
+@media (hover: hover) {
+  .ig-card__media:hover .ig-card__img { transform: scale(1.06); }
+  .ig-card__link:hover { color: var(--text-link); text-decoration: underline; }
+  .ig-card__brand:hover,
+  .ig-card__line:hover .ig-card__line-text { color: var(--text-link); text-decoration: underline; text-underline-offset: 2px; }
+  .ig-card__line:hover { color: var(--text-link); }
+}
 .ig-card__body { display: flex; flex-direction: column; flex: 1; min-width: 0; padding: var(--space-1) var(--space-2_5) 0; }
 /* бренд и серия — одной строкой «NIRVEL PROFESSIONAL · ArtX»; не помещается — серия целиком уходит на новую строку.
    Точка стоит в промежутке перед серией (отрицательный отступ); когда серия переносится, точка оказывается
    левее края блока и обрезается — висячей точки в конце или в начале строки нет. Так же сделано в ЛК6 (lk.css, .lk-pcard__brandline) */
 .ig-card__brandline { display: flex; flex-wrap: wrap; column-gap: var(--space-2_5); min-width: 0; overflow: hidden; }
 /* бренд без разрядки ProductCard, как в ЛК6: с разрядкой бренд и серия редко помещаются в одну строку */
+/* бренд и линия — кнопки-фильтры, выглядят как текст */
+.ig-card__brand,
+.ig-card__line { margin: 0; padding: 0; border: 0; background: none; text-align: left; cursor: pointer; transition: color var(--duration-fast) ease; }
 .ig-card__brand { flex: 0 1 auto; min-width: 0; letter-spacing: var(--tracking-normal); line-height: 1.4; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.ig-card__line { display: flex; flex: 0 1 auto; min-width: 0; font-size: var(--font-size-micro); line-height: 1.4; color: var(--text-muted); }
+.ig-card__line { display: flex; flex: 0 1 auto; min-width: 0; font-family: var(--font-ui); font-size: var(--font-size-micro); letter-spacing: var(--tracking-normal); line-height: 1.4; color: var(--text-muted); }
 .ig-card__line::before { content: "·"; content: "·" / ""; flex: none; width: var(--space-2_5); margin-left: calc(-1 * var(--space-2_5)); text-align: center; }
 .ig-card__line-text { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 /* название — как в ProductCard ДС; до трёх строк */
@@ -761,8 +780,33 @@ ul { margin: 0; padding: 0; list-style: none; }
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.ig-card__pricerow { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); margin-top: var(--space-3); }
-.ig-card__pricenote { font-size: var(--font-size-micro); line-height: 1.4; color: var(--status-error); white-space: nowrap; text-align: right; }
+/* строка цены — по макету 2593:5468: слева цена и под ней «Розничная цена», справа «Узнать проф. цену» в две строки */
+.ig-card__pricerow { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-2); margin-top: var(--space-3); }
+.ig-card__priceblock { display: flex; flex-direction: column; gap: var(--space-1); min-width: 0; }
+.ig-card__pricenote { font-size: var(--font-size-micro); line-height: 1.4; color: var(--status-error); white-space: nowrap; }
+.ig-card__pro {
+  flex: none;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-family: var(--font-ui);
+  font-size: var(--font-size-micro);
+  font-weight: var(--weight-semibold);
+  line-height: var(--leading-compact);
+  letter-spacing: var(--tracking-normal);
+  color: var(--text-muted);
+  text-align: center;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+  transition: color var(--duration-fast) ease;
+}
+.ig-card__pro-l { display: block; }
+/* ссылка отодвинута от правого края карточки на 16 px (просьба пользователя 12.10) */
+.ig-card__pro { margin-right: var(--space-3); }
+@media (hover: hover) {
+  .ig-card__pro:hover { color: var(--text-link); }
+}
 .ig-card__controls { padding: var(--space-4) var(--space-2_5) var(--space-2_5); }
 /* счётчик количества (QuantityStepper) растянут на ширину карточки: кнопки по краям, число между ними */
 .ig-card__controls .igro-stepper { display: flex; justify-content: space-between; width: 100%; }
@@ -993,7 +1037,10 @@ ul { margin: 0; padding: 0; list-style: none; }
   .ig-card__body { padding-inline: var(--space-2); }
   .ig-card__controls { padding: var(--space-3) var(--space-2) var(--space-2); }
   /* в узкой карточке подпись к цене уходит под цену */
-  .ig-card__pricerow { flex-direction: column; align-items: flex-start; gap: 2px; }
+  /* в узкой карточке «Узнать проф. цену» уходит под цену одной строкой */
+  .ig-card__pricerow { flex-direction: column; align-items: flex-start; gap: var(--space-1); }
+  .ig-card__pro { text-align: left; margin-right: 0; }
+  .ig-card__pro-l { display: inline; }
   .ig-card .igro-price__amount { font-size: var(--font-size-h4); }
   .ig-card .igro-product-card__name { font-size: var(--font-size-body-md); }
 
@@ -1008,5 +1055,6 @@ ul { margin: 0; padding: 0; list-style: none; }
   .ig-directions__track { scroll-behavior: auto; }
   /* меню каталога — только проявление, без шторки и сдвига */
   .ig-mega, .ig-mega.is-open { transform: none; clip-path: none; }
-  .ig-banner:hover .ig-banner__img { transform: none; }
+  .ig-banner:hover .ig-banner__img,
+  .ig-card__media:hover .ig-card__img { transform: none; }
 }

@@ -258,11 +258,14 @@
     if (k === 'g') return [p.g];
     if (k === 'y') return p.y ? [p.y] : [];
     if (k === 'a') return p.a;
+    if (k === 'l') return p.l ? [lineKey(p)] : [];
     if (k === 'c') { var c = brand(p.g).c; return c ? [c] : []; }
     if (k === 't') return techs(p);
     return [];
   }
-  var KEYS = ['g', 'c', 'y', 'a', 't'];
+  /* l — линия: включается кликом по линии в карточке, в панели «Фильтры» её нет */
+  function lineKey(p) { return p.g + ' · ' + p.l; }
+  var KEYS = ['g', 'c', 'y', 'a', 'l', 't'];
   /* сквозные фильтры панели */
   var FACETS = [
     { k: 'g', title: 'Бренд', open: true },
@@ -492,6 +495,10 @@
     return '<button type="button" class="igro-tag igro-tag--interactive' + (medal ? ' ig-tag-hit' : '') + '" aria-pressed="' + (on ? 'true' : 'false') + '" data-facet="' + k + '" data-val="' + esc(v) + '">' +
       esc(v) + (medal ? MEDAL : '') + '</button>';
   }
+  function removableTag(k, v, label) {
+    return '<span class="igro-tag igro-tag--selected igro-tag--removable">' + esc(label) +
+      '<button type="button" class="igro-tag__remove" data-facet="' + k + '" data-val="' + esc(v) + '" aria-label="Убрать фильтр: ' + esc(label) + '">' + ic('close', 16) + '</button></span>';
+  }
   /* значения, которые при текущих фильтрах дают хотя бы один товар (выбранное остаётся всегда) */
   function available(k) {
     var cnts = countsFor(sel, k), picked = sel[k];
@@ -519,6 +526,9 @@
         if (ab.indexOf(b) > -1) left += chipHTML('g', b, sel.g.indexOf(b) > -1);
       });
     }
+    /* бренд без своего чипа (не ключевой) и линия, выбранные кликом в карточке, — чипами с крестиком (Tag ДС, removable) */
+    sel.g.forEach(function (b) { if (keyBrands.indexOf(b) < 0) left += removableTag('g', b, b); });
+    sel.l.forEach(function (v) { left += removableTag('l', v, 'Линия: ' + v.split(' · ').slice(1).join(' · ')); });
 
     var sortLabel = SORTS.filter(function (s) { return s.k === state.sort; })[0].label;
     var right = '<span class="ig-count">' + goods(total) + '</span>' +
@@ -580,19 +590,25 @@
           ? stepperHTML(cartQty(p.key), 'В корзину: ' + p.n)
           : '<button type="button" class="igro-btn igro-btn--dark igro-btn--block ig-card__btn" data-add aria-label="В корзину: ' + esc(p.n) + '">В корзину</button>';
     return '<article class="igro-product-card ig-card" data-key="' + esc(p.key) + '">' +
-      '<div class="ig-card__media' + (p.img ? ' ig-card__media--img' : '') + '" aria-hidden="true">' +
+      /* картинка и название ведут в карточку товара (в прототипе её нет — подсказка); с клавиатуры — через название */
+      '<div class="ig-card__media' + (p.img ? ' ig-card__media--img' : '') + '" data-product aria-hidden="true">' +
       (p.img ? '<img class="ig-card__img" src="' + esc(imgThumb(p.img)) + '" data-full="' + esc(imgFull(p.img)) + '" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer">' : '') +
       '</div>' +
       '<div class="ig-card__body">' +
       /* бренд и серия одной строкой через среднюю точку; не помещаются — серия уходит на новую строку без точки (как в ЛК6) */
-      '<div class="ig-card__brandline"><span class="igro-product-card__brand ig-card__brand">' + esc(p.g) + '</span>' +
-      (p.l ? '<span class="ig-card__line" title="' + esc(p.l) + '"><span class="ig-card__line-text">' + esc(p.l) + '</span></span>' : '') + '</div>' +
-      '<div class="igro-product-card__name ig-card__name" title="' + esc(p.n) + '">' + soft(p.n) + '</div>' +
+      /* бренд и линия — кнопки: включают фильтр по бренду или по линии на текущей странице */
+      '<div class="ig-card__brandline"><button type="button" class="igro-product-card__brand ig-card__brand" data-card-brand="' + esc(p.g) + '" title="Все товары бренда в разделе">' + esc(p.g) + '</button>' +
+      (p.l ? '<button type="button" class="ig-card__line" data-card-line="' + esc(lineKey(p)) + '" data-card-line-brand="' + esc(p.g) + '" title="Все товары линии «' + esc(p.l) + '» в разделе"><span class="ig-card__line-text">' + esc(p.l) + '</span></button>' : '') + '</div>' +
+      '<div class="igro-product-card__name ig-card__name" title="' + esc(p.n) + '"><a class="igro-product-card__link ig-card__link" href="#" data-product>' + soft(p.n) + '</a></div>' +
       (p.desc ? '<div class="ig-card__desc" title="' + esc(p.desc) + '">' + esc(p.desc) + '</div>' : '') +
       '<div class="ig-card__art" title="' + esc(art) + '">' + esc(art) + '</div>' +
       /* цена в карточке — за выбранное количество (как было со счётчиком); data-unit — цена за штуку */
-      '<div class="ig-card__pricerow"><span class="igro-price igro-price--lg"><span class="igro-price__amount ig-card__price" data-unit="' + p.r + '">' + esc(rub(p.r * (cartQty(p.key) || 1))) + '</span></span>' +
+      /* по макету Figma «IB — my DESIGN», узел 2593:5468: «Розничная цена» под ценой, справа — «Узнать проф. цену»
+         (профессиональная цена видна после регистрации на сайте) */
+      '<div class="ig-card__pricerow"><div class="ig-card__priceblock">' +
+      '<span class="igro-price igro-price--lg"><span class="igro-price__amount ig-card__price" data-unit="' + p.r + '">' + esc(rub(p.r * (cartQty(p.key) || 1))) + '</span></span>' +
       '<span class="ig-card__pricenote">Розничная цена</span></div>' +
+      '<button type="button" class="ig-card__pro" data-pro-price><span class="ig-card__pro-l">Узнать</span> проф.&nbsp;цену</button></div>' +
       '</div>' +
       '<div class="ig-card__controls">' + controls + '</div>' +
       '</article>';
@@ -906,6 +922,34 @@
       return;
     }
     if (t.closest('[data-cart-clear]')) { window.IG_CART.clear(); return; }
+
+    /* «Узнать проф. цену» — входа и регистрации в прототипе нет, поясняем, как это работает на сайте */
+    /* бренд или линия в карточке — фильтр по ним на текущей странице, список — с начала */
+    var cb = t.closest('[data-card-brand]');
+    if (cb) {
+      sel.g = [cb.getAttribute('data-card-brand')]; sel.l = [];
+      afterFilterChange(); scrollToGrid();
+      return;
+    }
+    var cline = t.closest('[data-card-line]');
+    if (cline) {
+      sel.g = [cline.getAttribute('data-card-line-brand')]; sel.l = [cline.getAttribute('data-card-line')];
+      afterFilterChange(); scrollToGrid();
+      return;
+    }
+    /* картинка или название — переход в карточку товара; в прототипе её нет */
+    var prod = t.closest('[data-product]');
+    if (prod) {
+      e.preventDefault();
+      var pc = prod.closest('.ig-card');
+      var pn = pc && pc.querySelector('.ig-card__name');
+      toast('Карточка товара', 'Здесь откроется страница товара' + (pn ? ' «' + pn.textContent + '»' : '') + '. В прототипе её нет.');
+      return;
+    }
+    if (t.closest('[data-pro-price]')) {
+      toast('Профессиональная цена', 'Профессиональные цены видны после регистрации на сайте. Вход и регистрация в прототип не входят.');
+      return;
+    }
 
     /* у продукта несколько вариантов — выбор в карточке товара */
     if (t.closest('[data-variants]')) {
