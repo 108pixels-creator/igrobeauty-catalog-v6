@@ -738,7 +738,9 @@ ul { margin: 0; padding: 0; list-style: none; }
 /* бренд и серия — одной строкой «NIRVEL PROFESSIONAL · ArtX»; не помещается — серия целиком уходит на новую строку.
    Точка стоит в промежутке перед серией (отрицательный отступ); когда серия переносится, точка оказывается
    левее края блока и обрезается — висячей точки в конце или в начале строки нет. Так же сделано в ЛК6 (lk.css, .lk-pcard__brandline) */
-.ig-card__brandline { display: flex; flex-wrap: wrap; column-gap: var(--space-2_5); min-width: 0; overflow: hidden; }
+.ig-card__brandline { display: flex; flex-wrap: wrap; align-items: flex-start; column-gap: var(--space-2_5); min-width: 0; overflow: hidden; }
+/* align-items: flex-start — когда строку выравнивают по высоте ряда (min-height), кнопка бренда не растягивается
+   и не опускает текст на середину, бренд и линия остаются на одной линии */
 /* бренд без разрядки ProductCard, как в ЛК6: с разрядкой бренд и серия редко помещаются в одну строку */
 /* бренд и линия — кнопки-фильтры, выглядят как текст */
 .ig-card__brand,

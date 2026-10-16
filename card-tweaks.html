@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Карточка товара – варианты</title>
+<link rel="stylesheet" href="ds/styles.css">
+<link rel="stylesheet" href="styles.css">
+<style>
+/* ==========================================================================
+   Страница сравнения: текущая карточка каталога v6 и 10 небольших вариантов.
+   Карточки собираются той же разметкой, что в render.js, и берут те же стили (ds/ + styles.css);
+   у каждого варианта поверх — свои правила с префиксом .tw--vN. Только токены ДС.
+   ========================================================================== */
+.tw-head { padding-block: var(--space-6) var(--space-4); }
+.tw-head h1 { margin: 0 0 var(--space-2); }
+.tw-head p { margin: 0 0 var(--space-3); max-width: 80ch; color: var(--text-muted); }
+.tw-nav { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.tw-nav a { text-decoration: none; }
+.tw-sec {
+  display: grid;
+  grid-template-columns: 240px minmax(0, 1fr);
+  gap: var(--space-5);
+  padding-block: var(--space-6);
+  border-top: 1px solid var(--border-subtle);
+  scroll-margin-top: var(--space-3);
+}
+.tw-sec--base { background: var(--surface-card); margin-inline: calc(-1 * var(--gutter-lg)); padding-inline: var(--gutter-lg); }
+.tw-sec__num { font-family: var(--font-heading); font-weight: var(--weight-bold); font-size: var(--font-size-micro); letter-spacing: var(--tracking-loose); text-transform: uppercase; color: var(--text-muted); }
+.tw-sec__title { margin: var(--space-1) 0 var(--space-3); }
+.tw-sec__label { margin: var(--space-3) 0 var(--space-1); font-size: var(--font-size-micro); font-weight: var(--weight-semibold); letter-spacing: var(--tracking-loose); text-transform: uppercase; color: var(--text-muted); }
+.tw-sec__text { margin: 0; font-size: var(--font-size-body-sm); line-height: var(--leading-normal); color: var(--text-default); }
+.tw-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-4); align-items: stretch; }
+.tw-foot { padding-block: var(--space-6); color: var(--text-muted); font-size: var(--font-size-body-sm); border-top: 1px solid var(--border-subtle); }
+
+/* ---------- 1. Фото во всю ширину карточки ---------- */
+.tw--v1 .ig-card__media { margin: 0; aspect-ratio: 1 / 1; }
+
+/* ---------- 2. Название — как в макете: Source Sans 14, не больше двух строк ---------- */
+.tw--v2 .ig-card__name {
+  font-family: var(--font-ui);
+  font-size: var(--font-size-body-sm);
+  font-weight: var(--weight-semibold);
+  line-height: 1.25;
+  letter-spacing: var(--tracking-normal);
+  min-height: 2.5em;
+  -webkit-line-clamp: 2;
+}
+
+/* ---------- 3. Бренд — первым, линия — видно, что это ссылка-фильтр ---------- */
+.tw--v3 .ig-card__brand { color: var(--text-default); font-weight: var(--weight-semibold); }
+.tw--v3 .ig-card__line { color: var(--text-link); }
+.tw--v3 .ig-card__line-text { text-decoration: underline dotted; text-underline-offset: 3px; }
+
+/* ---------- 4. Число оттенков — плашкой на фото ---------- */
+.tw-badge { position: absolute; z-index: 1; top: var(--space-2); left: var(--space-2); }
+
+/* ---------- 5. Подписи цены спокойнее, призыв к регистрации заметнее ---------- */
+.tw--v5 .ig-card__pricenote { color: var(--text-muted); }
+.tw--v5 .ig-card__pro { color: var(--text-link); }
+
+/* ---------- 6. Цена — фирменным зелёным (Price tone brand) ---------- */
+.tw--v6 .ig-card__price { color: var(--action-brand); }
+
+/* ---------- 7. Кнопки компактнее и с иконкой ---------- */
+.tw--v7 .ig-card__controls { padding-top: var(--space-3); }
+
+/* ---------- 8. Цена и корзина в одну строку ---------- */
+.tw--v8 .ig-card__pricerow { align-items: flex-end; }
+.tw--v8 .ig-card__pro { margin: var(--space-1) 0 0; text-align: left; }
+.tw--v8 .ig-card__pro-l { display: inline; }
+.tw--v8 .ig-card__body { padding-bottom: var(--space-2_5); }
+.tw-cartbtn { flex: none; }
+/* корзина — тёмная, как «В корзину» в текущей карточке (у IconButton ДС заливка solid — зелёная CTA) */
+.tw--v8 .igro-icon-btn--solid { background: var(--surface-inverse); border-color: var(--surface-inverse); }
+@media (hover: hover) { .tw--v8 .igro-icon-btn--solid:hover { background: var(--action-dark-hover); border-color: var(--action-dark-hover); } }
+
+/* ---------- 9. «В избранное» на фото ---------- */
+.tw-mediawrap { position: relative; }
+/* в углу фото: у поля фото отступы 12 px от краёв карточки */
+.tw-fav {
+  position: absolute; z-index: 1; top: calc(var(--space-2_5) + var(--space-1)); right: calc(var(--space-2_5) + var(--space-1));
+  background: var(--surface-card); box-shadow: var(--shadow-card);
+}
+
+/* ---------- 10. Фото на мягком сером поле ---------- */
+.tw--v10 .ig-card__media,
+.tw--v10 .ig-card__media--img { background: var(--surface-page); border-radius: var(--radius-field); }
+/* белый фон фотографии сливается с полем: умножение цвета не трогает сам товар */
+.tw--v10 .ig-card__img { mix-blend-mode: multiply; padding: var(--space-2); }
+
+@media (max-width: 1279px) {
+  .tw-sec { grid-template-columns: 1fr; gap: var(--space-3); }
+  .tw-sec--base { margin-inline: calc(-1 * var(--gutter-md)); padding-inline: var(--gutter-md); }
+}
+@media (max-width: 767px) {
+  .tw-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); }
+  .tw-sec--base { margin-inline: calc(-1 * var(--gutter-sm)); padding-inline: var(--gutter-sm); }
+}
+</style>
+</head>
+<body class="igro">
+<header class="ig-container tw-head">
+  <h1 class="igro-h1">Карточка товара: 10 небольших вариантов</h1>
+  <p>Наверху – карточка, как она сейчас в каталоге v6. В каждом варианте ниже – одно-два небольших изменения и одни и те же четыре товара: краситель с оттенками, краситель с длинной линией, машинка с одним вариантом и фен без фото. Варианты можно сочетать. Кнопки на этой странице ничего не делают, наведение работает как в каталоге.</p>
+  <nav class="tw-nav" id="tw-nav" aria-label="Варианты"></nav>
+</header>
+<main class="ig-container" id="tw"></main>
+<footer class="ig-container tw-foot">Прототип каталога v6 · страница сравнения вариантов карточки · данные – «Свод 14 для прототипа 2», фото – с сайта igrobeauty.ru</footer>
+
+<script src="data.js"></script>
+<script>
+(function () {
+  'use strict';
+  var D = window.IG_DATA;
+  /* товары для сравнения — по первому артикулу, номера в data.js меняются при пересборке
+     (краситель с оттенками, длинная линия, один вариант, без фото) */
+  var PICK = ['МТ1823', 'МТ98154', 'PM7001', '03-002G'];
+  var PRICE = D.meta.price, IMG_BASE = D.meta.img_base || '';
+
+  function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+  function soft(s) { return esc(s).replace(/,(?=\S)/g, ',&#8203;'); }
+  function ic(name, size) { return '<i class="ig-ic ig-ic--' + name + ' ig-ic-' + size + '" aria-hidden="true"></i>'; }
+  function NUM(n) { return n.toLocaleString('ru-RU'); }
+  function plural(n, f) { var a = Math.abs(n) % 100, b = a % 10; if (a > 10 && a < 20) return f[2]; if (b > 1 && b < 5) return f[1]; if (b === 1) return f[0]; return f[2]; }
+  function rub(n) { return NUM(n) + ' ₽'; }
+  function imgFull(path) { return /^https?:/.test(path) ? path : IMG_BASE + path; }
+  function imgThumb(path) { return 'https://wsrv.nl/?url=' + encodeURIComponent(imgFull(path).replace(/^https?:\/\//, '')) + '&w=440&h=440&fit=inside&output=webp&q=82'; }
+
+  /* та же разметка, что cardHTML в render.js; o — отличия варианта */
+  function card(p, o) {
+    o = o || {};
+    var multi = p.vc > 1, sh = p.sh || 0;
+    var count = sh ? NUM(sh) + ' ' + plural(sh, ['оттенок', 'оттенка', 'оттенков']) : NUM(p.vc) + ' ' + plural(p.vc, ['вариант', 'варианта', 'вариантов']);
+    var art = !multi ? 'Арт: ' + p.v.map(function (s) { return s[0]; }).join(' · ') : count;
+    var label = multi ? 'Выбрать' : 'В корзину';
+    var btn = '<button type="button" class="igro-btn ' + (multi ? 'igro-btn--secondary' : 'igro-btn--dark') + ' igro-btn--block' + (o.smallBtn ? ' igro-btn--sm' : '') + ' ig-card__btn">' +
+      (o.smallBtn && !multi ? ic('cart', 18) : '') + label + (o.smallBtn && multi ? ic('chevron-right', 18) : '') + '</button>';
+    var media = '<div class="ig-card__media' + (p.img ? ' ig-card__media--img' : '') + '" aria-hidden="true">' +
+      (p.img ? '<img class="ig-card__img" src="' + esc(imgThumb(p.img)) + '" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer">' : '') +
+      (o.badge && multi ? '<span class="igro-badge igro-badge--brand tw-badge">' + esc(count) + '</span>' : '') +
+      '</div>';
+    var fav = o.fav ? '<button type="button" class="igro-icon-btn igro-icon-btn--ghost igro-icon-btn--sm tw-fav" aria-label="В избранное: ' + esc(p.n) + '">' + ic('heart', 18) + '</button>' : '';
+    var price = '<span class="igro-price igro-price--lg"><span class="igro-price__amount ig-card__price">' + esc(rub(PRICE)) + '</span></span>';
+    var note = '<span class="ig-card__pricenote">Розничная цена</span>';
+    var pro = '<button type="button" class="ig-card__pro"><span class="ig-card__pro-l">Узнать</span> проф.&nbsp;цену</button>';
+    var pricerow = o.inlineCart
+      ? '<div class="ig-card__pricerow"><div class="ig-card__priceblock">' + price + note + pro + '</div>' +
+        '<button type="button" class="igro-icon-btn ' + (multi ? 'igro-icon-btn--outline' : 'igro-icon-btn--solid') + ' tw-cartbtn" aria-label="' + label + ': ' + esc(p.n) + '">' + ic(multi ? 'chevron-right' : 'cart', 20) + '</button></div>'
+      : '<div class="ig-card__pricerow"><div class="ig-card__priceblock">' + price + note + '</div>' + pro + '</div>';
+    return '<article class="igro-product-card ig-card">' +
+      '<div class="tw-mediawrap">' + media + fav + '</div>' +
+      '<div class="ig-card__body">' +
+      '<div class="ig-card__brandline"><button type="button" class="igro-product-card__brand ig-card__brand">' + esc(p.g) + '</button>' +
+      (p.l ? '<button type="button" class="ig-card__line"><span class="ig-card__line-text">' + esc(p.l) + '</span></button>' : '') + '</div>' +
+      '<div class="igro-product-card__name ig-card__name" title="' + esc(p.n) + '"><a class="igro-product-card__link ig-card__link" href="#">' + soft(p.n) + '</a></div>' +
+      (o.badge && multi ? '' : '<div class="ig-card__art">' + esc(art) + '</div>') +
+      pricerow +
+      '</div>' +
+      (o.inlineCart ? '' : '<div class="ig-card__controls">' + btn + '</div>') +
+      '</article>';
+  }
+
+  var V = [
+    { n: 'Сейчас', t: 'Текущая карточка каталога v6', what: 'Фото с полями 12 px, бренд и линия через точку, название Montserrat 16 px до трёх строк, артикул или число оттенков, цена с «Розничной ценой» и «Узнать проф. цену», кнопка во всю ширину.', why: 'Точка отсчёта для сравнения.', base: true },
+    { n: '1', t: 'Фото во всю ширину', cls: 'tw--v1', what: 'Убраны поля вокруг фото, поле квадратное.', why: 'Товар крупнее примерно на 10 %, исчезает белая рамка вокруг фото. Так устроена карточка товара в ДС (ProductCard).' },
+    { n: '2', t: 'Название короче', cls: 'tw--v2', what: 'Название – Source Sans 14 px полужирным, не больше двух строк (как в макете Figma 2593:5468).', why: 'Карточка ниже примерно на 25 px, названия ровнее по рядам, мелкий шрифт названия лучше подходит плотной сетке из пяти колонок.' },
+    { n: '3', t: 'Бренд – первым, линия – как ссылка', cls: 'tw--v3', what: 'Бренд тёмным полужирным, линия зелёная с точечным подчёркиванием.', why: 'Профессионалы выбирают по бренду – он должен читаться первым. Линия по клику включает фильтр, а сейчас это не видно.' },
+    { n: '4', t: 'Число оттенков – на фото', cls: 'tw--v4', o: { badge: true }, what: 'У товаров с вариантами «109 оттенков» – плашкой (Badge ДС) в углу фото; строка с числом оттенков убрана. У товаров с одним вариантом артикул остаётся.', why: 'Палитра красителя – довод к покупке, на фото её видно сразу. Если в ряду только товары с вариантами (красители), ряд ниже на строку; рядом с товарами с одним вариантом высота не меняется.' },
+    { n: '5', t: 'Спокойная «Розничная цена»', cls: 'tw--v5', what: '«Розничная цена» серым вместо красного, «Узнать проф. цену» – зелёной ссылкой.', why: 'Красный в ДС – цвет ошибок и скидок, здесь он тянет внимание к подписи. Главный призыв для мастера – узнать свою цену после регистрации.' },
+    { n: '6', t: 'Цена фирменным цветом', cls: 'tw--v6', what: 'Цена – IGRO Green (тон brand у Price в ДС), размер прежний.', why: 'Цену быстрее находят взглядом в плотной сетке, карточка заметнее связана с брендом.' },
+    { n: '7', t: 'Компактные кнопки с иконкой', cls: 'tw--v7', o: { smallBtn: true }, what: 'Кнопки малого размера ДС (34 px вместо 44 px), у «В корзину» – иконка корзины, у «Выбрать» – стрелка.', why: 'Карточка ниже примерно на 20 px. Иконка объясняет действие быстрее слова. На телефоне кнопки лучше оставить 44 px.' },
+    { n: '8', t: 'Цена и корзина в одну строку', cls: 'tw--v8', o: { inlineCart: true }, what: 'Строки с кнопкой нет: справа от цены – квадратная кнопка 44 px (корзина или стрелка «выбрать»), «Узнать проф. цену» – под «Розничной ценой».', why: 'Карточка ниже примерно на 45 px – на экране помещается больше товаров. Минус: слово «В корзину» заменено иконкой.' },
+    { n: '9', t: '«В избранное» на фото', cls: 'tw--v9', o: { fav: true }, what: 'В правом верхнем углу фото – кнопка с сердцем (IconButton ДС на белой подложке).', why: 'Привычный приём магазинов: мастер откладывает товар, не уходя из каталога. Избранное уже есть в шапке сайта.' },
+    { n: '10', t: 'Фото на мягком сером поле', cls: 'tw--v10', what: 'Поле фото – светло-серое со скруглением 8 px, белый фон снимков с ним сливается (умножение цвета), товар не меняется.', why: 'Карточки выглядят ровнее: снимки с сайта разного качества и размера, а серое поле прячет края белого фона. Товар без фото не выглядит «дырой».' }
+  ];
+
+  var byArt = {};
+  D.items.forEach(function (p) { p.v.forEach(function (s) { byArt[s[0]] = p; }); });
+  var items = PICK.map(function (a) { return byArt[a]; }).filter(Boolean);
+  document.getElementById('tw-nav').innerHTML = V.map(function (v, i) {
+    return '<a class="igro-tag igro-tag--interactive" href="#v' + i + '">' + (v.base ? 'Сейчас' : v.n + '. ' + esc(v.t)) + '</a>';
+  }).join('');
+  document.getElementById('tw').innerHTML = V.map(function (v, i) {
+    return '<section class="tw-sec' + (v.base ? ' tw-sec--base' : '') + '" id="v' + i + '">' +
+      '<div><div class="tw-sec__num">' + (v.base ? 'Сейчас' : 'Вариант ' + v.n) + '</div>' +
+      '<h2 class="igro-h3 tw-sec__title">' + esc(v.t) + '</h2>' +
+      '<div class="tw-sec__label">Что меняется</div><p class="tw-sec__text">' + esc(v.what) + '</p>' +
+      '<div class="tw-sec__label">Зачем</div><p class="tw-sec__text">' + esc(v.why) + '</p></div>' +
+      '<div class="tw-grid ' + (v.cls || '') + '">' + items.map(function (p) { return card(p, v.o); }).join('') + '</div>' +
+      '</section>';
+  }).join('');
+
+  /* строка «бренд · линия» бывает в одну или две строки — выравниваем в ряду, чтобы названия стояли на одной линии */
+  function align() {
+    document.querySelectorAll('.tw-grid').forEach(function (g) {
+      var lines = Array.prototype.slice.call(g.querySelectorAll('.ig-card__brandline'));
+      lines.forEach(function (l) { l.style.minHeight = ''; });
+      var max = Math.max.apply(null, lines.map(function (l) { return l.offsetHeight; }));
+      lines.forEach(function (l) { if (l.offsetHeight < max) l.style.minHeight = max + 'px'; });
+    });
+  }
+  align();
+  window.addEventListener('resize', align);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(align);
+  /* на странице сравнения ссылки и кнопки ничего не делают */
+  document.addEventListener('click', function (e) { if (e.target.closest('.ig-card a, .ig-card button')) e.preventDefault(); });
+})();
+</script>
+</body>
+</html>
