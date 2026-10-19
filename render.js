@@ -33,8 +33,9 @@
     'hair-aksessuary': 'Аксессуары',
     'hair-instrumenty': 'Инструменты'
   };
-  /* фон шапки подкатегорий «Волос» и их групп: assets/hero/<id подкатегории>.jpg (из icons/hair-hero-tex, 2880×480,
-     в центре светло — заголовок читается). Группа берёт картинку своей подкатегории */
+  /* фон шапки подкатегорий «Волос» и их групп: assets/hero/<id подкатегории>.jpg, 2880×480, в центре светло —
+     заголовок читается. С 19.10.2026 — интерьеры из banners/horizontal/08_2026-10-19_hair-krea3-final
+     (до этого — текстуры из 02_2026-10-12_hair-hero-textures). Группа берёт картинку своей подкатегории */
   var HERO_TEX = ['hair-okrashivanie', 'hair-blond', 'hair-uhod-dlya-volos', 'hair-terapiya', 'hair-zavivka',
     'hair-stayling', 'hair-nabory', 'hair-muzhskoy-uhod', 'hair-aksessuary', 'hair-instrumenty'];
   /* иконки групп «Волос» в чипах: assets/groups/<id>.png — набор icons/hair без прозрачных полей по бокам,
