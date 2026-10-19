@@ -315,6 +315,37 @@
       if (on && megaOpen()) setMega(false);
       mast.classList.toggle('is-collapsed', on);
     };
+    /* панель фильтров (референс goldapple.ru/volosy): пока её место в странице ниже шапки — стоит на месте;
+       ушла под шапку — закрепляется под полной шапкой, секция держит её высоту (страница не прыгает).
+       Закреплённая панель едет вместе с шапкой: прокрутка вниз — уезжает вверх за шапку, вверх — выезжает */
+    var tbSec = document.querySelector('.ig-toolbar');
+    var tbPanel = tbSec && tbSec.querySelector('[data-tbpanel]');
+    var tbStuck = false;
+    var placeTb = function () {
+      if (!tbPanel) return;
+      var full = parseFloat(getComputedStyle(docEl).getPropertyValue('--mast-h')) || mast.offsetHeight;
+      var stick = tbSec.getBoundingClientRect().top < full - 1;
+      var hide = mast.classList.contains('is-collapsed');
+      if (stick !== tbStuck) {
+        tbStuck = stick;
+        if (stick) {
+          tbSec.style.height = tbPanel.offsetHeight + 'px';
+          tbPanel.classList.add('is-instant');           /* в момент закрепления — без анимации */
+          tbPanel.classList.add('is-stuck');
+          tbPanel.classList.toggle('is-hidden', hide);
+          requestAnimationFrame(function () { requestAnimationFrame(function () { tbPanel.classList.remove('is-instant'); }); });
+        } else {
+          tbPanel.classList.remove('is-stuck', 'is-hidden');
+          tbSec.style.height = '';
+        }
+      } else if (stick) {
+        tbPanel.classList.toggle('is-hidden', hide);
+      }
+    };
+    /* фильтры поменялись в закреплённой панели — место в странице под её новую высоту */
+    if (tbPanel && window.ResizeObserver) {
+      new ResizeObserver(function () { if (tbStuck) tbSec.style.height = tbPanel.offsetHeight + 'px'; }).observe(tbPanel);
+    }
     var onMastScroll = function () {
       mastTick = false;
       var y = Math.max(0, window.scrollY), dy = y - lastY;
@@ -323,11 +354,12 @@
       else if (dy > 0 && y > 24) collapseMast(true);   /* у референса сжатие — после первых ~20–40 px вниз */
       else if (dy < 0) collapseMast(false);
       lastY = y;
+      placeTb();
     };
     window.addEventListener('scroll', function () {
       if (!mastTick) { mastTick = true; requestAnimationFrame(onMastScroll); }
     }, { passive: true });
-    window.addEventListener('resize', setMastH);
+    window.addEventListener('resize', function () { setMastH(); placeTb(); });
     window.addEventListener('load', setMastH);
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(setMastH);
     setMastH();

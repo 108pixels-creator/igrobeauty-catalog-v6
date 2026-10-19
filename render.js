@@ -450,8 +450,8 @@
       }).join('') +
       '</div><button type="button" class="ig-directions__arrow ig-directions__arrow--right" data-scroll="1" aria-label="Ещё разделы">' + ic('arrow-right', 20) + '</button></div></section>';
   }
-  html += '<section class="ig-toolbar"><div class="ig-container">' +
-    '<div class="ig-toolbar__row" id="ig-tb"></div><div id="ig-qf"></div></div></section>' +
+  html += '<section class="ig-toolbar"><div class="ig-toolbar__panel" data-tbpanel><div class="ig-container">' +
+    '<div class="ig-toolbar__row" id="ig-tb"></div><div id="ig-qf"></div></div></div></section>' +
     '<main class="ig-content"><div class="ig-container" id="ig-content"></div></main>';
   document.getElementById('page').innerHTML = html;
 
@@ -827,7 +827,8 @@
     var grid = document.querySelector('.ig-grid');
     var toolbar = document.querySelector('.ig-toolbar');
     if (!grid || !toolbar) return;
-    var y = toolbar.getBoundingClientRect().top + window.pageYOffset - 12;
+    var mastH = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--mast-h')) || 0;
+    var y = toolbar.getBoundingClientRect().top + window.pageYOffset - (mastH || 12);
     window.scrollTo({ top: y, behavior: 'smooth' });
   }
   function closeSortMenu() {
