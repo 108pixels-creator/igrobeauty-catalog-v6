@@ -296,4 +296,48 @@
     requestAnimationFrame(function () { track.style.scrollBehavior = prevBehavior || ''; });
     update();
   });
+
+  /* ---------- шапка поверх баннера (эксперимент design-lab, референс goldapple.ru) ----------
+     is-clear — страница в самом верху: шапка прозрачная; is-collapsed — прокрутка вниз: шапка сжата до знака
+     логотипа и иконок; прокрутка вверх — меню выезжает обратно. is-on-dark — баннер тёмный, текст белый.
+     --mast-h — высота полной шапки: на столько баннер уходит под неё */
+  var mast = document.querySelector('[data-mast]');
+  if (mast) {
+    var docEl = document.documentElement;
+    var heroEl = document.querySelector('#page > .ig-cathero, #page > .ig-hero');
+    mast.classList.toggle('is-on-dark', !!(heroEl && heroEl.classList.contains('ig-cathero')));
+    var lastY = window.scrollY, mastTick = false;
+    var setMastH = function () {
+      if (!mast.classList.contains('is-collapsed')) docEl.style.setProperty('--mast-h', mast.offsetHeight + 'px');
+    };
+    var collapseMast = function (on) {
+      if (mast.classList.contains('is-collapsed') === on) return;
+      if (on && megaOpen()) setMega(false);
+      mast.classList.toggle('is-collapsed', on);
+    };
+    var onMastScroll = function () {
+      mastTick = false;
+      var y = Math.max(0, window.scrollY), dy = y - lastY;
+      mast.classList.toggle('is-clear', y <= 0);
+      if (y <= 0) collapseMast(false);
+      else if (dy > 0 && y > 24) collapseMast(true);   /* у референса сжатие — после первых ~20–40 px вниз */
+      else if (dy < 0) collapseMast(false);
+      lastY = y;
+    };
+    window.addEventListener('scroll', function () {
+      if (!mastTick) { mastTick = true; requestAnimationFrame(onMastScroll); }
+    }, { passive: true });
+    window.addEventListener('resize', setMastH);
+    window.addEventListener('load', setMastH);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(setMastH);
+    setMastH();
+    onMastScroll();
+    /* иконка поиска в сжатой шапке — наверх, к полю поиска */
+    mast.addEventListener('click', function (e) {
+      if (!e.target.closest('[data-search-open]')) return;
+      var input = mast.querySelector('.igro-search__input');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      setTimeout(function () { if (input) input.focus({ preventScroll: true }); }, 350);
+    });
+  }
 })();

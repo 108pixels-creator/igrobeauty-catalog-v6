@@ -432,7 +432,7 @@
       '</div><button type="button" class="ig-directions__arrow ig-directions__arrow--right" data-scroll="1" aria-label="Ещё разделы">' + ic('arrow-right', 20) + '</button></div></section>';
   } else {
     var texId = node.level === 3 ? node.parent : node.id;
-    var tex = HERO_TEX.indexOf(texId) > -1 ? 'assets/hero/' + texId + '.jpg' : '';
+    var tex = HERO_TEX.indexOf(texId) > -1 ? 'assets/hero-tall/' + texId + '.jpg' : '';
     html = '<section class="ig-hero' + (tex ? ' ig-hero--tex' : '') + '"' + (tex ? ' style="--hero-tex: url(&quot;' + tex + '&quot;)"' : '') + '><div class="ig-container">' + crumbsHTML() +
       '<h1 class="igro-promo ig-hero__title">' + esc(node.title) + '</h1>' +
       '</div></section>';
