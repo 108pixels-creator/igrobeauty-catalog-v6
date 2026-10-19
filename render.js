@@ -508,7 +508,8 @@
   }
 
   function renderToolbar() {
-    var total = filtered(sel).length;
+    /* счётчик у сортировки – сколько всего товаров в разделе; от выбранных фильтров не зависит (решение 20.10.2026) */
+    var total = scope.length;
     var n = panelSelected(sel);
     /* «Фильтры» — Button sm: ghost, а когда в панели что-то выбрано — dark */
     var left = '<button type="button" class="igro-btn igro-btn--sm ' + (n ? 'igro-btn--dark' : 'igro-btn--ghost') + ' ig-filters-btn" data-open="filters" aria-haspopup="dialog">' +
