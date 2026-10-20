@@ -317,29 +317,56 @@
     };
     /* панель фильтров (референс goldapple.ru/volosy): пока её место в странице ниже шапки — стоит на месте;
        ушла под шапку — закрепляется под полной шапкой, секция держит её высоту (страница не прыгает).
-       Закреплённая панель едет вместе с шапкой: прокрутка вниз — уезжает вверх за шапку, вверх — выезжает */
+       Закреплённая панель едет вместе с шапкой: прокрутка вниз — уезжает вверх за шапку, вверх — выезжает.
+       Граница — низ шапки в её нынешнем виде: у сжатой (60 px) панель стоит на месте дольше, чем у полной,
+       иначе под сжатой шапкой оставалось пустое место панели (замечание 20.10) */
     var tbSec = document.querySelector('.ig-toolbar');
     var tbPanel = tbSec && tbSec.querySelector('[data-tbpanel]');
     var tbStuck = false;
+    var mastSlot = mast.parentNode;
+    var collapsedH = 60;                                 /* уточняется, когда шапка досжимается */
+    var mastNav = mast.querySelector('.ig-mainnav');
+    mast.addEventListener('transitionend', function (e) {
+      if (e.target === mastNav && mast.classList.contains('is-collapsed')) collapsedH = mast.offsetHeight;
+    });
+    /* панель переехала (на место ↔ под шапку): начинает с прежней высоты экрана и доезжает до новой за 0,25 с */
+    var slideFrom = function (fromTop) {
+      var d = fromTop - tbPanel.getBoundingClientRect().top;
+      if (Math.abs(d) < 1) return;
+      tbPanel.classList.add('is-instant');
+      tbPanel.style.transform = 'translateY(' + Math.round(d) + 'px)';
+      tbPanel.getBoundingClientRect();
+      tbPanel.classList.remove('is-instant');
+      tbPanel.style.transform = '';
+    };
     var placeTb = function () {
       if (!tbPanel) return;
+      var collapsed = mast.classList.contains('is-collapsed');
       var full = parseFloat(getComputedStyle(docEl).getPropertyValue('--mast-h')) || mast.offsetHeight;
-      var stick = tbSec.getBoundingClientRect().top < full - 1;
-      var hide = mast.classList.contains('is-collapsed');
-      if (stick !== tbStuck) {
-        tbStuck = stick;
-        if (stick) {
-          tbSec.style.height = tbPanel.offsetHeight + 'px';
-          tbPanel.classList.add('is-instant');           /* в момент закрепления — без анимации */
-          tbPanel.classList.add('is-stuck');
-          tbPanel.classList.toggle('is-hidden', hide);
+      var edge = Math.max(0, mastSlot.getBoundingClientRect().top) + (collapsed ? collapsedH : full);
+      var stick = tbSec.getBoundingClientRect().top < edge - 1;
+      if (stick === tbStuck) {
+        if (stick) tbPanel.classList.toggle('is-hidden', collapsed);
+        return;
+      }
+      tbStuck = stick;
+      var wasTop = tbPanel.getBoundingClientRect().top;
+      var wasShown = !tbPanel.classList.contains('is-hidden');
+      if (stick) {
+        tbSec.style.height = tbPanel.offsetHeight + 'px';
+        if (collapsed) {
+          /* место панели уже под сжатой шапкой — закрепляется сразу спрятанной */
+          tbPanel.classList.add('is-instant', 'is-stuck', 'is-hidden');
           requestAnimationFrame(function () { requestAnimationFrame(function () { tbPanel.classList.remove('is-instant'); }); });
         } else {
-          tbPanel.classList.remove('is-stuck', 'is-hidden');
-          tbSec.style.height = '';
+          tbPanel.classList.add('is-stuck');
+          tbPanel.classList.remove('is-hidden');
+          slideFrom(wasTop);
         }
-      } else if (stick) {
-        tbPanel.classList.toggle('is-hidden', hide);
+      } else {
+        tbPanel.classList.remove('is-stuck', 'is-hidden');
+        tbSec.style.height = '';
+        if (wasShown) slideFrom(wasTop);
       }
     };
     /* фильтры поменялись в закреплённой панели — место в странице под её новую высоту */
