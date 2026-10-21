@@ -743,8 +743,9 @@ ul { margin: 0; padding: 0; list-style: none; }
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
   pointer-events: none;
 }
-.ig-card--stack::before { transform: translate(6px, -4px); border-radius: 10px; }
-.ig-card--stack::after { transform: translate(12px, -8px); border-radius: 12px; }
+/* порядок рисования: ::before – задний слой, ::after – средний (ложится поверх заднего) */
+.ig-card--stack::before { transform: translate(12px, -8px); border-radius: 12px; }
+.ig-card--stack::after { transform: translate(6px, -4px); border-radius: 10px; }
 .ig-card__media {
   position: relative;
   overflow: hidden;
