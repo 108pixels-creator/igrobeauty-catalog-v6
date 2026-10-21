@@ -1518,3 +1518,17 @@ body.igro { background: var(--surface-card); }
 
 /* иконка «Каталога» – сплошная заливка без обводки (просьба 21.10): те же четыре плитки, залитые */
 .ig-navlink .ig-ic--grid { --ic: url("data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20viewBox=%270%200%2024%2024%27%20fill=%27%23000%27%3E%3Crect%20x=%273%27%20y=%273%27%20width=%278%27%20height=%2710%27%20rx=%271.5%27/%3E%3Crect%20x=%2713%27%20y=%273%27%20width=%278%27%20height=%276%27%20rx=%271.5%27/%3E%3Crect%20x=%2713%27%20y=%2711%27%20width=%278%27%20height=%2710%27%20rx=%271.5%27/%3E%3Crect%20x=%273%27%20y=%2715%27%20width=%278%27%20height=%276%27%20rx=%271.5%27/%3E%3C/svg%3E"); }
+
+/* выбранные чипы брендов («Все бренды», бренд, линия с крестиком) – не заливка, а тёмная обводка 2 px
+   (рамка 1 px + внутренняя тень 1 px – размер чипа не меняется); меньше внимания, чем залитый чип (просьба 21.10) */
+.ig-toolbar .igro-tag[aria-pressed="true"],
+.ig-toolbar .igro-tag--selected {
+  background: var(--surface-card);
+  border-color: var(--surface-inverse);
+  box-shadow: inset 0 0 0 1px var(--surface-inverse);
+  color: var(--text-default);
+}
+.ig-toolbar .igro-tag__remove { color: var(--text-muted); }
+@media (hover: hover) {
+  .ig-toolbar .igro-tag__remove:hover { color: var(--text-default); }
+}
