@@ -1547,7 +1547,9 @@ ul { margin: 0; padding: 0; list-style: none; }
    ссылка – колонка, текст первой строкой, под ним невидимая полужирная копия нулевой высоты */
 .ig-tlink[data-t] { display: inline-flex; flex-direction: column; align-items: flex-start; }
 .ig-tlink[data-t]::after { content: attr(data-t); height: 0; overflow: hidden; visibility: hidden; font-weight: var(--weight-semibold); pointer-events: none; }
-.ig-btn__num.is-empty { visibility: hidden; }
 .ig-btn__num { display: inline-block; min-width: 3ch; text-align: left; }
+.ig-btn__num.is-empty { display: none; }
+.ig-filters-btn.is-measure .ig-btn__num.is-empty { display: inline-block; visibility: hidden; }
+.ig-filters-btn { justify-content: center; }
 /* полная шапка после компактной встаёт сразу в своём виде, без перестройки (переходы отключены на кадр) */
 .ig-mast.no-anim, .ig-mast.no-anim * { transition: none !important; animation: none !important; }

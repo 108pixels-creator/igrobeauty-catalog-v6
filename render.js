@@ -520,6 +520,20 @@
     return ORDER[k].filter(function (v) { return (cnts[v] || 0) > 0 || picked.indexOf(v) > -1; });
   }
 
+  /* «Фильтры» одной ширины с числом и без: ширина измеряется один раз с «· 0» и закрепляется;
+     пока фильтров нет, числа нет, а иконка и слово стоят по центру этой ширины (21.10) */
+  var filtersBtnW = 0;
+  function fixFiltersBtn() {
+    var fb = document.querySelector('.ig-filters-btn');
+    if (!fb) return;
+    if (!filtersBtnW) {
+      fb.classList.add('is-measure');
+      filtersBtnW = Math.ceil(fb.getBoundingClientRect().width);
+      fb.classList.remove('is-measure');
+    }
+    fb.style.minWidth = filtersBtnW + 'px';
+  }
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { filtersBtnW = 0; fixFiltersBtn(); });
   function renderToolbar() {
     /* счётчик у сортировки – сколько всего товаров в разделе; от выбранных фильтров не зависит (решение 20.10.2026) */
     var total = scope.length;
@@ -557,6 +571,7 @@
 
     document.getElementById('ig-tb').innerHTML =
       '<div class="ig-toolbar__left">' + left + '</div><div class="ig-toolbar__right">' + right + '</div>';
+    fixFiltersBtn();
 
     var rows = '';
     /* технология / задача — чипы. Больше двух строк — «ещё (N)» в конце второй строки; в панели «Фильтры» этого
