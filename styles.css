@@ -785,7 +785,7 @@ ul { margin: 0; padding: 0; list-style: none; }
   cursor: pointer;
 }
 .ig-card__fav svg { width: 18px; height: 18px; transition: transform var(--duration-fast) var(--ease-standard), fill var(--duration-fast) ease, color var(--duration-fast) ease; }
-.ig-card__fav[aria-pressed="true"] { color: var(--status-error); }
+.ig-card__fav[aria-pressed="true"] { color: var(--action-cta); }   /* залитое сердце — зелёное (Uplift), как кнопки */
 .ig-card__fav[aria-pressed="true"] svg { fill: currentColor; }
 .ig-card__fav:active svg { transform: scale(0.9); }
 
@@ -975,10 +975,96 @@ ul { margin: 0; padding: 0; list-style: none; }
   .ig-card__pro:hover { color: var(--action-cta); }
   .ig-card__fav:hover svg { transform: scale(1.15); }
   .ig-card__fav:hover { color: var(--text-default); }
-  .ig-card__fav[aria-pressed="true"]:hover { color: var(--status-error); }
+  .ig-card__fav[aria-pressed="true"]:hover { color: var(--action-cta); }
   .ig-card__btn:hover { background: var(--surface-inverse); border-color: var(--surface-inverse); color: var(--text-on-dark); }
   .ig-card__sq:hover { background: var(--action-dark-hover); border-color: var(--action-dark-hover); }
   .ig-card__qty-btn:hover { background: var(--surface-inverse); border-color: var(--surface-inverse); color: var(--text-on-dark); }
+}
+
+/* блок покупки: кнопка «В корзину» превращается в квадратную тёмную кнопку справа, слева проявляется счётчик.
+   Раскрытие: кнопка сжимается (0,3 с) и темнеет, надпись гаснет и складывается; счётчик выезжает с задержкой 0,1 с.
+   Сворачивание — наоборот: счётчик гаснет сразу, кнопка разворачивается с задержкой 0,08 с */
+.ig-card__buy { position: relative; height: var(--size-control-md); }
+.ig-card__buybtn {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 1px solid var(--action-cta);
+  border-radius: var(--radius-control);
+  background: var(--surface-card);
+  color: var(--action-cta);
+  font-family: var(--font-ui);
+  font-size: var(--font-size-body-sm);
+  font-weight: var(--weight-semibold);
+  line-height: 16.8px;
+  letter-spacing: -0.14px;
+  white-space: nowrap;
+  overflow: hidden;
+  cursor: pointer;
+  transition:
+    width var(--duration-base) var(--ease-standard) 0.08s,
+    background-color var(--duration-base) ease 0.08s,
+    border-color var(--duration-base) ease 0.08s,
+    color var(--duration-base) ease 0.08s,
+    transform var(--duration-fast) ease;
+}
+.ig-card__buyicon { display: inline-flex; flex: none; }
+.ig-card__buyicon svg { width: 18px; height: 18px; transition: width var(--duration-base) var(--ease-standard), height var(--duration-base) var(--ease-standard); }
+.ig-card__buylabel {
+  display: inline-block;
+  max-width: 120px;
+  margin-left: 6px;
+  overflow: hidden;
+  opacity: 1;
+  transition: max-width var(--duration-base) var(--ease-standard) 0.08s, margin var(--duration-base) var(--ease-standard) 0.08s, opacity var(--duration-fast) ease calc(0.08s + var(--duration-base) * 0.6);   /* надпись проступает, когда кнопка уже светлая */
+}
+.ig-card__buy .ig-card__qty {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: calc(var(--size-control-md) + var(--space-2));
+  opacity: 0;
+  visibility: hidden;
+  transform: translateX(16px) scale(0.96);
+  transform-origin: right center;
+  transition: opacity var(--duration-fast) ease, transform var(--duration-fast) var(--ease-standard), visibility 0s linear var(--duration-fast);
+}
+/* раскрыт */
+.ig-card__buy.is-open .ig-card__buybtn {
+  width: var(--size-control-md);
+  border-color: var(--surface-inverse);
+  background: var(--surface-inverse);
+  color: var(--text-on-dark);
+  transition:
+    width var(--duration-base) var(--ease-standard),
+    background-color var(--duration-base) ease,
+    border-color var(--duration-base) ease,
+    color var(--duration-fast) ease,
+    transform var(--duration-fast) ease;
+}
+.ig-card__buy.is-open .ig-card__buyicon svg { width: 20px; height: 20px; }
+.ig-card__buy.is-open .ig-card__buylabel {
+  max-width: 0;
+  margin-left: 0;
+  opacity: 0;
+  transition: max-width var(--duration-base) var(--ease-standard), margin var(--duration-base) var(--ease-standard), opacity 0.1s ease;
+}
+.ig-card__buy.is-open .ig-card__qty {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  transition: opacity var(--duration-base) ease 0.1s, transform var(--duration-base) var(--ease-standard) 0.1s, visibility 0s;
+}
+.ig-card__buybtn:active { transform: scale(var(--press-scale)); }
+@media (hover: hover) {
+  .ig-card__buybtn:hover { background: var(--surface-inverse); border-color: var(--surface-inverse); color: var(--text-on-dark); }
+  .ig-card__buy.is-open .ig-card__buybtn:hover { background: var(--action-dark-hover); border-color: var(--action-dark-hover); }
 }
 
 /* окно «Сообщить о поступлении» */

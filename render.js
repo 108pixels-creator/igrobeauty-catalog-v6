@@ -604,16 +604,16 @@
      нет в наличии каждый 12-й товар с одним вариантом (демонстрация; ?stock=all — все в наличии) */
   var STOCK_DEMO = new URLSearchParams(location.search).get('stock') !== 'all';
   function isOut(p) { return !!p.out || (STOCK_DEMO && !p.multi && p.i % 12 === 7); }
-  function qtySplitHTML(name) {
-    return '<div class="ig-card__split" data-split>' +
-      '<div class="ig-card__qty" role="group" aria-label="Количество">' +
+  /* «В корзину» и счётчик — один блок: кнопка не заменяется, а превращается (сжимается в квадрат справа,
+     темнеет, надпись гаснет), на освободившемся месте проявляется счётчик. Счётчик вне открытого блока — inert */
+  function buyHTML(name) {
+    return '<div class="ig-card__buy" data-buy>' +
+      '<div class="ig-card__qty" role="group" aria-label="Количество" inert>' +
       '<button type="button" class="ig-card__qty-btn" data-qty="-1" aria-label="Меньше">' + SVG.minus + '</button>' +
       '<input class="ig-card__qty-in" type="text" inputmode="numeric" maxlength="3" value="1" aria-label="Количество: ' + esc(name) + '">' +
       '<button type="button" class="ig-card__qty-btn" data-qty="1" aria-label="Больше">' + SVG.plus + '</button></div>' +
-      '<button type="button" class="ig-card__sq" data-cart-commit aria-label="Добавить в корзину">' + SVG.cart + '</button></div>';
-  }
-  function addBtnHTML(name) {
-    return '<button type="button" class="ig-card__btn" data-add aria-label="В корзину: ' + esc(name) + '">' + SVG.cart + 'В корзину</button>';
+      '<button type="button" class="ig-card__buybtn" data-buy-btn aria-label="В корзину: ' + esc(name) + '">' +
+      '<span class="ig-card__buyicon">' + SVG.cart + '</span><span class="ig-card__buylabel">В корзину</span></button></div>';
   }
   function cardHTML(p) {
     /* у продукта с вариантами — «стопка» и плашка с числом оттенков или вариантов */
@@ -624,7 +624,7 @@
       : isOut(p)
         ? '<div class="ig-card__split"><div class="ig-card__nostock">' + SVG.close + 'нет в наличии</div>' +
           '<button type="button" class="ig-card__sq ig-card__sq--bell" data-notify aria-label="Сообщить о поступлении: ' + esc(p.n) + '">' + SVG.bell + '</button></div>'
-        : addBtnHTML(p.n);
+        : buyHTML(p.n);
     var faved = !!fav[p.key];
     return '<article class="ig-card' + (p.multi ? ' ig-card--stack' : '') + '" data-key="' + esc(p.key) + '">' +
       /* картинка и название ведут в карточку товара (в прототипе её нет — подсказка); с клавиатуры — через название */
@@ -807,6 +807,30 @@
   /* ---------- уведомления — ToastRegion ДС ----------
      одна стопка в правом нижнем углу; не больше трёх; на экране 6 с, при наведении и фокусе таймер стоит */
   var toastList = null;
+  /* раскрыть или свернуть блок покупки; фокус — туда, где продолжит работу пользователь */
+  function setBuy(buy, open) {
+    var qty = buy.querySelector('.ig-card__qty'), btn = buy.querySelector('[data-buy-btn]');
+    var name = (btn.getAttribute('aria-label') || '').replace(/^[^:]*:\s*/, '');
+    buy.classList.toggle('is-open', open);
+    if (open) {
+      qty.removeAttribute('inert');
+      btn.setAttribute('aria-label', 'Добавить в корзину: ' + name);
+      var plus = qty.querySelector('[data-qty="1"]');
+      if (plus) plus.focus({ preventScroll: true });
+    } else {
+      qty.setAttribute('inert', '');
+      qty.querySelector('.ig-card__qty-in').value = 1;
+      btn.setAttribute('aria-label', 'В корзину: ' + name);
+      btn.focus({ preventScroll: true });
+    }
+  }
+  /* иконка корзины коротко «подпрыгивает», когда добавили ещё */
+  function bump(el) {
+    var calm = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (!el || !el.animate || calm) return;
+    el.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.25) translateY(-2px)' }, { transform: 'scale(1)' }],
+      { duration: 320, easing: 'cubic-bezier(0.32, 1.6, 0.6, 1)' });
+  }
   var notifyBack = null;
   function closeNotify() {
     var s = document.querySelector('.ig-notify');
@@ -1037,38 +1061,34 @@
       toast(on ? 'В избранном' : 'Убрано из избранного', '«' + cardName() + '»');
       return;
     }
-    /* «В корзину»: 1 шт. сразу в корзине, кнопка делится на счётчик и квадратную кнопку корзины */
-    var addB = t.closest('[data-add]');
-    if (addB && cardEl) {
-      var total = window.IG_CART.add(cardEl.getAttribute('data-key'), 1, cardUnit());
-      toast('Товар в корзине', '«' + cardName() + '» – 1 шт.' + (total > 1 ? ' Всего этого товара в корзине: ' + total + ' шт.' : ''));
-      var holder = document.createElement('div');
-      holder.innerHTML = qtySplitHTML(cardName());
-      addB.replaceWith(holder.firstChild);
-      var inc = cardEl.querySelector('[data-qty="1"]');
-      if (inc) inc.focus({ preventScroll: true });
+    /* «В корзину»: 1 шт. сразу в корзине и блок раскрывается в счётчик + квадратную кнопку;
+       у раскрытого блока кнопка корзины добавляет столько, сколько в счётчике */
+    var buyBtn = t.closest('[data-buy-btn]');
+    if (buyBtn && cardEl) {
+      var buy = buyBtn.closest('[data-buy]');
+      var key = cardEl.getAttribute('data-key');
+      if (!buy.classList.contains('is-open')) {
+        var total = window.IG_CART.add(key, 1, cardUnit());
+        toast('Товар в корзине', '«' + cardName() + '» – 1 шт.' + (total > 1 ? ' Всего этого товара в корзине: ' + total + ' шт.' : ''));
+        setBuy(buy, true);
+      } else {
+        var qin = buy.querySelector('.ig-card__qty-in');
+        var q = Math.max(1, Math.min(999, parseInt(qin.value, 10) || 1));
+        qin.value = q;
+        var tot = window.IG_CART.add(key, q, cardUnit());
+        toast('Добавлено в корзину', '«' + cardName() + '» – ' + q + ' шт. Всего этого товара в корзине: ' + tot + ' шт.');
+        bump(buyBtn.querySelector('.ig-card__buyicon'));
+      }
       return;
     }
     /* − и + меняют только число в счётчике; «−» на единице сворачивает блок обратно в «В корзину» */
     var qb = t.closest('[data-qty]');
     if (qb && cardEl) {
-      var inp = cardEl.querySelector('.ig-card__qty-in');
+      var bx = qb.closest('[data-buy]');
+      var inp = bx.querySelector('.ig-card__qty-in');
       var n = (parseInt(inp.value, 10) || 1) + parseInt(qb.getAttribute('data-qty'), 10);
-      if (n < 1) {
-        var h2 = document.createElement('div');
-        h2.innerHTML = addBtnHTML(cardName());
-        cardEl.querySelector('[data-split]').replaceWith(h2.firstChild);
-        cardEl.querySelector('[data-add]').focus({ preventScroll: true });
-      } else {
-        inp.value = Math.min(999, n);
-      }
-      return;
-    }
-    /* кнопка корзины у счётчика — добавляет в корзину столько, сколько в счётчике */
-    if (t.closest('[data-cart-commit]') && cardEl) {
-      var q = Math.max(1, Math.min(999, parseInt(cardEl.querySelector('.ig-card__qty-in').value, 10) || 1));
-      var tot = window.IG_CART.add(cardEl.getAttribute('data-key'), q, cardUnit());
-      toast('Добавлено в корзину', '«' + cardName() + '» – ' + q + ' шт. Всего этого товара в корзине: ' + tot + ' шт.');
+      if (n < 1) setBuy(bx, false);
+      else inp.value = Math.min(999, n);
       return;
     }
     /* нет в наличии — окно «Сообщить о поступлении» */
@@ -1109,7 +1129,7 @@
   document.addEventListener('keydown', function (e) {
     /* Enter в счётчике — то же, что кнопка корзины */
     var qi = e.target.closest && e.target.closest('.ig-card__qty-in');
-    if (qi && e.key === 'Enter') { var cb = qi.closest('[data-split]').querySelector('[data-cart-commit]'); if (cb) cb.click(); return; }
+    if (qi && e.key === 'Enter') { var cb = qi.closest('[data-buy]').querySelector('[data-buy-btn]'); if (cb) cb.click(); return; }
 
     /* меню сортировки, как Menu ДС: ↑/↓ и Home/End двигают фокус по пунктам */
     var item = e.target.closest && e.target.closest('.ig-sortmenu [role="menuitem"]');
