@@ -199,6 +199,13 @@
       if (q > 0) cart[key] = { q: q, r: price }; else delete cart[key];
       cartSave(); renderCart();
     },
+    /* добавить n шт. к тому, что уже в корзине (новая карточка: «В корзину» и кнопка корзины у счётчика) */
+    add: function (key, n, price) {
+      if (!key || n < 1) return 0;
+      cart[key] = { q: cartQty(key) + n, r: price };
+      cartSave(); renderCart();
+      return cart[key].q;
+    },
     clear: function () { cart = {}; cartSave(); renderCart(); renderContent(); },
     stepperHTML: stepperHTML
   };
@@ -578,41 +585,64 @@
 
   /* ---------- контент ---------- */
   /* карточка по макету Figma: картинка, бренд, линия, название, артикул, цена с подписью, действие во всю ширину */
+  /* иконки новой карточки — из макета Figma 2740:3615, цвет — currentColor */
+  var SVG = {
+    heart: '<svg viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="M14.25 10.5C15.3675 9.405 16.5 8.0925 16.5 6.375C16.5 5.28098 16.0654 4.23177 15.2918 3.45818C14.5182 2.68459 13.469 2.25 12.375 2.25C11.055 2.25 10.125 2.625 9 3.75C7.875 2.625 6.945 2.25 5.625 2.25C4.53098 2.25 3.48177 2.68459 2.70818 3.45818C1.93459 4.23177 1.5 5.28098 1.5 6.375C1.5 8.1 2.625 9.4125 3.75 10.5L9 15.75L14.25 10.5Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    cart: '<svg viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="M4.5 1.5L2.25 4.5V15C2.25 15.3978 2.40803 15.7793 2.68934 16.0606C2.97064 16.342 3.35218 16.5 3.75 16.5H14.25C14.6478 16.5 15.0293 16.342 15.3106 16.0606C15.592 15.7793 15.75 15.3978 15.75 15V4.5L13.5 1.5H4.5Z M2.25 4.5H15.75 M12 7.5C12 8.29567 11.6839 9.05872 11.1213 9.6213C10.5587 10.1839 9.79568 10.5 9 10.5C8.20432 10.5 7.44129 10.1839 6.87868 9.6213C6.31607 9.05872 6 8.29567 6 7.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    chevron: '<svg viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="M6.65 4.9L11.15 9.4L6.65 13.9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    minus: '<svg viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="M3.75 9H14.25" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>',
+    plus: '<svg viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="M9 3.75V14.25M3.75 9H14.25" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>',
+    close: '<svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M5 5L15 15M15 5L5 15" stroke="currentColor" stroke-width="1.67" stroke-linecap="round"/></svg>',
+    bell: '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M19 12.59V10c0-3.22-2.18-5.93-5.14-6.74A1.99 1.99 0 0 0 12 2c-.85 0-1.56.52-1.86 1.26C7.18 4.08 5 6.79 5 10v2.59L3.29 14.3a1 1 0 0 0-.29.71v2c0 .55.45 1 1 1h16c.55 0 1-.45 1-1v-2c0-.27-.11-.52-.29-.71L19 12.59ZM19 16H5v-.59l1.71-1.71A1 1 0 0 0 7 12.99V10c0-2.76 2.24-5 5-5s5 2.24 5 5v3c0 .27.11.52.29.71L19 15.41V16ZM5.64 3.3 4.23 1.89A10.94 10.94 0 0 0 1 9.67h2c0-2.4.94-4.66 2.64-6.36V3.3Zm12.72 0C20.06 5 21 7.26 21 9.66h2c0-2.94-1.14-5.7-3.22-7.78l-1.41 1.41-.01.01ZM12 22c1.31 0 2.41-.83 2.82-2H9.18c.41 1.17 1.51 2 2.82 2Z"/></svg>'
+  };
+  /* избранное (имитация) — в localStorage этого браузера */
+  var FAV_KEY = 'ig-catalog-v6-fav';
+  var fav = {};
+  try { fav = JSON.parse(localStorage.getItem(FAV_KEY) || '{}') || {}; } catch (e) { fav = {}; }
+  function favSave() { try { localStorage.setItem(FAV_KEY, JSON.stringify(fav)); } catch (e) {} }
+  /* «нет в наличии»: данных о наличии в справочнике нет. Чтобы состояние из макета было видно, в прототипе
+     нет в наличии каждый 12-й товар с одним вариантом (демонстрация; ?stock=all — все в наличии) */
+  var STOCK_DEMO = new URLSearchParams(location.search).get('stock') !== 'all';
+  function isOut(p) { return !!p.out || (STOCK_DEMO && !p.multi && p.i % 12 === 7); }
+  function qtySplitHTML(name) {
+    return '<div class="ig-card__split" data-split>' +
+      '<div class="ig-card__qty" role="group" aria-label="Количество">' +
+      '<button type="button" class="ig-card__qty-btn" data-qty="-1" aria-label="Меньше">' + SVG.minus + '</button>' +
+      '<input class="ig-card__qty-in" type="text" inputmode="numeric" maxlength="3" value="1" aria-label="Количество: ' + esc(name) + '">' +
+      '<button type="button" class="ig-card__qty-btn" data-qty="1" aria-label="Больше">' + SVG.plus + '</button></div>' +
+      '<button type="button" class="ig-card__sq" data-cart-commit aria-label="Добавить в корзину">' + SVG.cart + '</button></div>';
+  }
+  function addBtnHTML(name) {
+    return '<button type="button" class="ig-card__btn" data-add aria-label="В корзину: ' + esc(name) + '">' + SVG.cart + 'В корзину</button>';
+  }
   function cardHTML(p) {
-    /* у красителей с разными оттенками считаем оттенки, у остальных продуктов — варианты */
-    var art = !p.multi ? 'Арт: ' + p.arts.join(' · ')
-      : p.sh ? NUM(p.sh) + ' ' + plural(p.sh, ['оттенок', 'оттенка', 'оттенков'])
-      : NUM(p.vc) + ' ' + plural(p.vc, ['вариант', 'варианта', 'вариантов']);
-    /* «нет в наличии» — состояние из макета; данных о наличии в справочнике нет, признак out пока никому не ставится */
-    /* «В корзину» — dark, как в макете карточки; «Выбрать» (у продукта несколько вариантов) — secondary */
-    var controls = p.out
-      ? '<div class="ig-card__nostock">' + ic('close', 20) + 'нет в наличии</div>'
-      : p.multi
-        ? '<button type="button" class="igro-btn igro-btn--secondary igro-btn--block ig-card__btn" data-variants aria-label="Выбрать: ' + esc(p.n) + '">Выбрать</button>'
-        : cartQty(p.key)
-          ? stepperHTML(cartQty(p.key), 'В корзину: ' + p.n)
-          : '<button type="button" class="igro-btn igro-btn--dark igro-btn--block ig-card__btn" data-add aria-label="В корзину: ' + esc(p.n) + '">В корзину</button>';
-    return '<article class="igro-product-card ig-card" data-key="' + esc(p.key) + '">' +
+    /* у продукта с вариантами — «стопка» и плашка с числом оттенков или вариантов */
+    var badge = p.multi ? (p.sh ? NUM(p.sh) + ' ' + plural(p.sh, ['оттенок', 'оттенка', 'оттенков'])
+      : NUM(p.vc) + ' ' + plural(p.vc, ['вариант', 'варианта', 'вариантов'])) : '';
+    var controls = p.multi
+      ? '<button type="button" class="ig-card__btn" data-variants aria-label="Выбрать: ' + esc(p.n) + '">Выбрать' + SVG.chevron + '</button>'
+      : isOut(p)
+        ? '<div class="ig-card__split"><div class="ig-card__nostock">' + SVG.close + 'нет в наличии</div>' +
+          '<button type="button" class="ig-card__sq ig-card__sq--bell" data-notify aria-label="Сообщить о поступлении: ' + esc(p.n) + '">' + SVG.bell + '</button></div>'
+        : addBtnHTML(p.n);
+    var faved = !!fav[p.key];
+    return '<article class="ig-card' + (p.multi ? ' ig-card--stack' : '') + '" data-key="' + esc(p.key) + '">' +
       /* картинка и название ведут в карточку товара (в прототипе её нет — подсказка); с клавиатуры — через название */
       '<div class="ig-card__media' + (p.img ? ' ig-card__media--img' : '') + '" data-product aria-hidden="true">' +
       (p.img ? '<img class="ig-card__img" src="' + esc(imgThumb(p.img)) + '" data-full="' + esc(imgFull(p.img)) + '" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer">' : '') +
       '</div>' +
-      '<div class="ig-card__body">' +
-      /* бренд и серия одной строкой через среднюю точку; не помещаются — серия уходит на новую строку без точки (как в ЛК6) */
+      (badge ? '<span class="ig-card__badge">' + esc(badge) + '</span>'
+        : '<button type="button" class="ig-card__fav" data-fav aria-pressed="' + faved + '" aria-label="В избранное: ' + esc(p.n) + '">' + SVG.heart + '</button>') +
       /* бренд и линия — кнопки: включают фильтр по бренду или по линии на текущей странице */
-      '<div class="ig-card__brandline"><button type="button" class="igro-product-card__brand ig-card__brand" data-card-brand="' + esc(p.g) + '" title="Все товары бренда в разделе">' + esc(p.g) + '</button>' +
-      (p.l ? '<button type="button" class="ig-card__line" data-card-line="' + esc(lineKey(p)) + '" data-card-line-brand="' + esc(p.g) + '" title="Все товары линии «' + esc(p.l) + '» в разделе"><span class="ig-card__line-text">' + esc(p.l) + '</span></button>' : '') + '</div>' +
-      '<div class="igro-product-card__name ig-card__name" title="' + esc(p.n) + '"><a class="igro-product-card__link ig-card__link" href="#" data-product>' + soft(p.n) + '</a></div>' +
-      (p.desc ? '<div class="ig-card__desc" title="' + esc(p.desc) + '">' + esc(p.desc) + '</div>' : '') +
-      '<div class="ig-card__art" title="' + esc(art) + '">' + esc(art) + '</div>' +
-      /* цена в карточке — за выбранное количество (как было со счётчиком); data-unit — цена за штуку */
-      /* по макету Figma «IB — my DESIGN», узел 2593:5468: «Розничная цена» под ценой, справа — «Узнать проф. цену»
-         (профессиональная цена видна после регистрации на сайте) */
-      '<div class="ig-card__pricerow"><div class="ig-card__priceblock">' +
-      '<span class="igro-price igro-price--lg"><span class="igro-price__amount ig-card__price" data-unit="' + p.r + '">' + esc(rub(p.r * (cartQty(p.key) || 1))) + '</span></span>' +
-      '<span class="ig-card__pricenote">Розничная цена</span></div>' +
-      '<button type="button" class="ig-card__pro" data-pro-price><span class="ig-card__pro-l">Узнать</span> проф.&nbsp;цену</button></div>' +
-      '</div>' +
+      '<button type="button" class="ig-card__brand" data-card-brand="' + esc(p.g) + '" title="Все товары бренда в разделе">' + esc(p.g) + '</button>' +
+      (p.l ? '<button type="button" class="ig-card__line" data-card-line="' + esc(lineKey(p)) + '" data-card-line-brand="' + esc(p.g) + '" title="Все товары линии «' + esc(p.l) + '» в разделе">' + esc(p.l) + '</button>' : '') +
+      '<div class="ig-card__name" title="' + esc(p.n) + '"><a class="ig-card__link" href="#" data-product>' + soft(p.n) + '</a></div>' +
+      (p.desc ? '<div class="ig-card__desc">' + esc(p.desc) + '</div>' : '') +
+      /* цена: слева цена и «Розничная цена» (вправо), справа «Узнать проф. цену» (влево) — макет 2740:3615 */
+      '<div class="ig-card__price"><div class="ig-card__price-l">' +
+      '<span class="ig-card__price-v" data-unit="' + p.r + '">' + esc(rub(p.r)) + '</span>' +
+      '<span class="ig-card__price-n">Розничная цена</span></div>' +
+      '<button type="button" class="ig-card__pro" data-pro-price>Узнать<br>проф.&nbsp;цену</button></div>' +
       '<div class="ig-card__controls">' + controls + '</div>' +
       '</article>';
   }
@@ -777,6 +807,48 @@
   /* ---------- уведомления — ToastRegion ДС ----------
      одна стопка в правом нижнем углу; не больше трёх; на экране 6 с, при наведении и фокусе таймер стоит */
   var toastList = null;
+  var notifyBack = null;
+  function closeNotify() {
+    var s = document.querySelector('.ig-notify');
+    if (s) s.remove();
+    document.documentElement.classList.remove('igro-scroll-locked');
+    if (notifyBack) { notifyBack.focus({ preventScroll: true }); notifyBack = null; }
+  }
+  function openNotify(name, back) {
+    notifyBack = back;
+    var s = document.createElement('div');
+    s.className = 'igro-dialog-scrim ig-notify';
+    s.innerHTML = '<div class="igro-dialog" role="dialog" aria-modal="true" aria-labelledby="ig-notify-t" tabindex="-1">' +
+      '<div class="igro-dialog__head"><div class="igro-dialog__titles"><h2 class="igro-dialog__title" id="ig-notify-t">Сообщить о поступлении</h2>' +
+      '<div class="igro-dialog__subtitle">Пришлём письмо, когда товар появится на складе</div></div>' +
+      '<button type="button" class="igro-dialog__close" data-notify-close aria-label="Закрыть">' + SVG.close + '</button></div>' +
+      '<div class="igro-dialog__body"><p class="ig-notify__product">' + esc(name) + '</p>' +
+      '<form data-notify-form novalidate><div class="igro-field"><div class="igro-field__control">' +
+      '<input class="igro-field__input" id="ig-notify-mail" type="email" placeholder=" " autocomplete="email" required>' +
+      '<label class="igro-field__label" for="ig-notify-mail">Электронная почта</label></div>' +
+      '<div class="igro-field__hint" data-notify-hint>Только для этого уведомления</div></div>' +
+      '<div class="ig-notify__foot"><button type="submit" class="igro-btn igro-btn--primary igro-btn--lg">Сообщить</button>' +
+      '<button type="button" class="igro-btn igro-btn--secondary igro-btn--lg" data-notify-close>Отмена</button></div></form></div></div>';
+    document.body.appendChild(s);
+    document.documentElement.classList.add('igro-scroll-locked');
+    s.querySelector('input').focus();
+    s.addEventListener('click', function (e) {
+      if (e.target === s || e.target.closest('[data-notify-close]')) closeNotify();
+    });
+    s.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeNotify(); });
+    s.querySelector('[data-notify-form]').addEventListener('submit', function (e) {
+      e.preventDefault();
+      var inp = s.querySelector('input');
+      var ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(inp.value.trim());
+      var field = inp.closest('.igro-field');
+      inp.setAttribute('aria-invalid', ok ? 'false' : 'true');
+      field.classList.toggle('igro-field--invalid', !ok);
+      s.querySelector('[data-notify-hint]').textContent = ok ? 'Только для этого уведомления' : 'Проверьте адрес почты';
+      if (!ok) { inp.focus(); return; }
+      closeNotify();
+      toast('Сообщим о поступлении', 'Письмо придёт на ' + inp.value.trim() + ', когда «' + name + '» появится в наличии. В прототипе письма не отправляются.');
+    });
+  }
   function toast(title, msg) {
     if (!toastList) {
       var region = document.createElement('div');
@@ -950,6 +1022,61 @@
       toast('Карточка товара', 'Здесь откроется страница товара' + (pn ? ' «' + pn.textContent + '»' : '') + '. В прототипе её нет.');
       return;
     }
+    /* ---- новая карточка (эксперимент design-lab, макет 2740:3615) ---- */
+    var cardEl = t.closest('.ig-card');
+    var cardName = function () { var a = cardEl && cardEl.querySelector('.ig-card__link'); return a ? a.textContent : ''; };
+    var cardUnit = function () { var v = cardEl && cardEl.querySelector('[data-unit]'); return v ? parseInt(v.getAttribute('data-unit'), 10) || 0 : 0; };
+    /* избранное: нажатие заливает сердце */
+    var favBtn = t.closest('[data-fav]');
+    if (favBtn && cardEl) {
+      var on = favBtn.getAttribute('aria-pressed') !== 'true';
+      favBtn.setAttribute('aria-pressed', on);
+      var fk = cardEl.getAttribute('data-key');
+      if (on) fav[fk] = 1; else delete fav[fk];
+      favSave();
+      toast(on ? 'В избранном' : 'Убрано из избранного', '«' + cardName() + '»');
+      return;
+    }
+    /* «В корзину»: 1 шт. сразу в корзине, кнопка делится на счётчик и квадратную кнопку корзины */
+    var addB = t.closest('[data-add]');
+    if (addB && cardEl) {
+      var total = window.IG_CART.add(cardEl.getAttribute('data-key'), 1, cardUnit());
+      toast('Товар в корзине', '«' + cardName() + '» – 1 шт.' + (total > 1 ? ' Всего этого товара в корзине: ' + total + ' шт.' : ''));
+      var holder = document.createElement('div');
+      holder.innerHTML = qtySplitHTML(cardName());
+      addB.replaceWith(holder.firstChild);
+      var inc = cardEl.querySelector('[data-qty="1"]');
+      if (inc) inc.focus({ preventScroll: true });
+      return;
+    }
+    /* − и + меняют только число в счётчике; «−» на единице сворачивает блок обратно в «В корзину» */
+    var qb = t.closest('[data-qty]');
+    if (qb && cardEl) {
+      var inp = cardEl.querySelector('.ig-card__qty-in');
+      var n = (parseInt(inp.value, 10) || 1) + parseInt(qb.getAttribute('data-qty'), 10);
+      if (n < 1) {
+        var h2 = document.createElement('div');
+        h2.innerHTML = addBtnHTML(cardName());
+        cardEl.querySelector('[data-split]').replaceWith(h2.firstChild);
+        cardEl.querySelector('[data-add]').focus({ preventScroll: true });
+      } else {
+        inp.value = Math.min(999, n);
+      }
+      return;
+    }
+    /* кнопка корзины у счётчика — добавляет в корзину столько, сколько в счётчике */
+    if (t.closest('[data-cart-commit]') && cardEl) {
+      var q = Math.max(1, Math.min(999, parseInt(cardEl.querySelector('.ig-card__qty-in').value, 10) || 1));
+      var tot = window.IG_CART.add(cardEl.getAttribute('data-key'), q, cardUnit());
+      toast('Добавлено в корзину', '«' + cardName() + '» – ' + q + ' шт. Всего этого товара в корзине: ' + tot + ' шт.');
+      return;
+    }
+    /* нет в наличии — окно «Сообщить о поступлении» */
+    if (t.closest('[data-notify]') && cardEl) {
+      openNotify(cardName(), t.closest('[data-notify]'));
+      return;
+    }
+
     if (t.closest('[data-pro-price]')) {
       toast('Профессиональная цена', 'Профессиональные цены видны после регистрации на сайте. Вход и регистрация в прототип не входят.');
       return;
@@ -971,7 +1098,19 @@
     }
   });
 
+  document.addEventListener('input', function (e) {
+    var inp = e.target.closest && e.target.closest('.ig-card__qty-in');
+    if (inp) inp.value = inp.value.replace(/[^0-9]/g, '').slice(0, 3);
+  });
+  document.addEventListener('focusout', function (e) {
+    var inp = e.target.closest && e.target.closest('.ig-card__qty-in');
+    if (inp && !(parseInt(inp.value, 10) > 0)) inp.value = 1;
+  });
   document.addEventListener('keydown', function (e) {
+    /* Enter в счётчике — то же, что кнопка корзины */
+    var qi = e.target.closest && e.target.closest('.ig-card__qty-in');
+    if (qi && e.key === 'Enter') { var cb = qi.closest('[data-split]').querySelector('[data-cart-commit]'); if (cb) cb.click(); return; }
+
     /* меню сортировки, как Menu ДС: ↑/↓ и Home/End двигают фокус по пунктам */
     var item = e.target.closest && e.target.closest('.ig-sortmenu [role="menuitem"]');
     if (item && /^(ArrowDown|ArrowUp|Home|End)$/.test(e.key)) {

@@ -94,42 +94,7 @@
     var catBtn = t.closest('.ig-mega__cat');
     if (catBtn) { showMegaPanel(catBtn); return; }
 
-    /* «В корзину» → счётчик количества (QuantityStepper ДС) во всю ширину карточки; товар попадает в корзину */
-    var addBtn = t.closest('.ig-card [data-add]');
-    if (addBtn) {
-      var cardA = addBtn.closest('.ig-card');
-      var holder = document.createElement('div');
-      holder.innerHTML = window.IG_CART.stepperHTML(1, addBtn.getAttribute('aria-label') || '');
-      var st = holder.firstChild;
-      addBtn.replaceWith(st);
-      updatePrice(cardA, 1);
-      window.IG_CART.set(cardA.getAttribute('data-key'), 1, unitPrice(cardA));
-      st.querySelector('[data-step="1"]').focus({ preventScroll: true });
-      return;
-    }
-    var step = t.closest('[data-step]');
-    if (step) {
-      var stepper = step.parentNode;
-      var val = stepper.querySelector('.igro-stepper__value');
-      var n = parseInt(val.textContent, 10) + parseInt(step.getAttribute('data-step'), 10);
-      var card = stepper.closest('.ig-card');
-      if (card) window.IG_CART.set(card.getAttribute('data-key'), Math.max(0, n), unitPrice(card));
-      if (n < 1 && card) {
-        var b = document.createElement('button');
-        b.type = 'button';
-        b.className = 'igro-btn igro-btn--dark igro-btn--block ig-card__btn';
-        b.setAttribute('data-add', '');
-        if (stepper.getAttribute('data-add-label')) b.setAttribute('aria-label', stepper.getAttribute('data-add-label'));
-        b.textContent = 'В корзину';
-        stepper.replaceWith(b);
-        updatePrice(card, 1);
-        b.focus({ preventScroll: true });
-      } else {
-        val.textContent = Math.max(1, n);
-        if (card) updatePrice(card, Math.max(1, n));
-      }
-      return;
-    }
+    /* «В корзину», счётчик, избранное и «Сообщить о поступлении» новой карточки — в render.js (design-lab, 21.10) */
 
     /* стрелки рядов (чипы групп, баннеры подкатегорий) листают целую страницу ряда */
     var arr = t.closest('[data-scroll]');
