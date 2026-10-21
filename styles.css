@@ -1000,7 +1000,7 @@ ul { margin: 0; padding: 0; list-style: none; }
   padding: 0;
   border: 1px solid var(--action-cta);
   border-radius: var(--radius-control);
-  background: var(--surface-card);
+  background: transparent;              /* в цвет фона страницы (21.10), не белая */
   color: var(--action-cta);
   font-family: var(--font-ui);
   font-size: var(--font-size-body-sm);
