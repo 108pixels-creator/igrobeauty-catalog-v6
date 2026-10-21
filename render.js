@@ -829,7 +829,7 @@
     var calm = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (!el || !el.animate || calm) return;
     el.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.25) translateY(-2px)' }, { transform: 'scale(1)' }],
-      { duration: 320, easing: 'cubic-bezier(0.32, 1.6, 0.6, 1)' });
+      { duration: 224, easing: 'cubic-bezier(0.32, 1.6, 0.6, 1)' });
   }
   var notifyBack = null;
   function closeNotify() {

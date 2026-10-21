@@ -982,9 +982,10 @@ ul { margin: 0; padding: 0; list-style: none; }
 }
 
 /* блок покупки: кнопка «В корзину» превращается в квадратную тёмную кнопку справа, слева проявляется счётчик.
-   Раскрытие: кнопка сжимается (0,3 с) и темнеет, надпись гаснет и складывается; счётчик выезжает с задержкой 0,1 с.
-   Сворачивание — наоборот: счётчик гаснет сразу, кнопка разворачивается с задержкой 0,08 с */
-.ig-card__buy { position: relative; height: var(--size-control-md); }
+   Раскрытие: кнопка сжимается (0,21 с) и темнеет, надпись гаснет и складывается; счётчик выезжает с задержкой 0,07 с.
+   Сворачивание — наоборот: счётчик гаснет сразу, кнопка разворачивается с задержкой 0,056 с */
+/* на 30 % быстрее токенов ДС (просьба 21.10): 0,21 и 0,14 с; при «уменьшить движение» токены гасят и их */
+.ig-card__buy { --buy-base: calc(var(--duration-base) * 0.7); --buy-fast: calc(var(--duration-fast) * 0.7); position: relative; height: var(--size-control-md); }
 .ig-card__buybtn {
   position: absolute;
   top: 0;
@@ -1008,21 +1009,21 @@ ul { margin: 0; padding: 0; list-style: none; }
   overflow: hidden;
   cursor: pointer;
   transition:
-    width var(--duration-base) var(--ease-standard) 0.08s,
-    background-color var(--duration-base) ease 0.08s,
-    border-color var(--duration-base) ease 0.08s,
-    color var(--duration-base) ease 0.08s,
-    transform var(--duration-fast) ease;
+    width var(--buy-base) var(--ease-standard) 0.056s,
+    background-color var(--buy-base) ease 0.056s,
+    border-color var(--buy-base) ease 0.056s,
+    color var(--buy-base) ease 0.056s,
+    transform var(--buy-fast) ease;
 }
 .ig-card__buyicon { display: inline-flex; flex: none; }
-.ig-card__buyicon svg { width: 18px; height: 18px; transition: width var(--duration-base) var(--ease-standard), height var(--duration-base) var(--ease-standard); }
+.ig-card__buyicon svg { width: 18px; height: 18px; transition: width var(--buy-base) var(--ease-standard), height var(--buy-base) var(--ease-standard); }
 .ig-card__buylabel {
   display: inline-block;
   max-width: 120px;
   margin-left: 6px;
   overflow: hidden;
   opacity: 1;
-  transition: max-width var(--duration-base) var(--ease-standard) 0.08s, margin var(--duration-base) var(--ease-standard) 0.08s, opacity var(--duration-fast) ease calc(0.08s + var(--duration-base) * 0.6);   /* надпись проступает, когда кнопка уже светлая */
+  transition: max-width var(--buy-base) var(--ease-standard) 0.056s, margin var(--buy-base) var(--ease-standard) 0.056s, opacity var(--buy-fast) ease calc(0.056s + var(--buy-base) * 0.6);   /* надпись проступает, когда кнопка уже светлая */
 }
 .ig-card__buy .ig-card__qty {
   position: absolute;
@@ -1033,7 +1034,7 @@ ul { margin: 0; padding: 0; list-style: none; }
   visibility: hidden;
   transform: translateX(16px) scale(0.96);
   transform-origin: right center;
-  transition: opacity var(--duration-fast) ease, transform var(--duration-fast) var(--ease-standard), visibility 0s linear var(--duration-fast);
+  transition: opacity var(--buy-fast) ease, transform var(--buy-fast) var(--ease-standard), visibility 0s linear var(--buy-fast);
 }
 /* раскрыт */
 .ig-card__buy.is-open .ig-card__buybtn {
@@ -1042,24 +1043,24 @@ ul { margin: 0; padding: 0; list-style: none; }
   background: var(--surface-inverse);
   color: var(--text-on-dark);
   transition:
-    width var(--duration-base) var(--ease-standard),
-    background-color var(--duration-base) ease,
-    border-color var(--duration-base) ease,
-    color var(--duration-fast) ease,
-    transform var(--duration-fast) ease;
+    width var(--buy-base) var(--ease-standard),
+    background-color var(--buy-base) ease,
+    border-color var(--buy-base) ease,
+    color var(--buy-fast) ease,
+    transform var(--buy-fast) ease;
 }
 .ig-card__buy.is-open .ig-card__buyicon svg { width: 20px; height: 20px; }
 .ig-card__buy.is-open .ig-card__buylabel {
   max-width: 0;
   margin-left: 0;
   opacity: 0;
-  transition: max-width var(--duration-base) var(--ease-standard), margin var(--duration-base) var(--ease-standard), opacity 0.1s ease;
+  transition: max-width var(--buy-base) var(--ease-standard), margin var(--buy-base) var(--ease-standard), opacity 0.07s ease;
 }
 .ig-card__buy.is-open .ig-card__qty {
   opacity: 1;
   visibility: visible;
   transform: none;
-  transition: opacity var(--duration-base) ease 0.1s, transform var(--duration-base) var(--ease-standard) 0.1s, visibility 0s;
+  transition: opacity var(--buy-base) ease 0.07s, transform var(--buy-base) var(--ease-standard) 0.07s, visibility 0s;
 }
 .ig-card__buybtn:active { transform: scale(var(--press-scale)); }
 @media (hover: hover) {
