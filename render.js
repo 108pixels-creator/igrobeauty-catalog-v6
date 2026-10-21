@@ -159,7 +159,8 @@
      Корзина хранится в localStorage этого браузера: переживает переход между разделами и обновление страницы.
      Ключ товара — номер продукта (в режиме «по артикулам» — артикул). Страницы корзины в прототипе нет.
      Ключ хранилища сменён 13.10.2026 после пересборки по «Своду 18»: номера продуктов сдвинулись */
-  var CART_KEY = 'ig-catalog-v6-cart-s18';
+  /* 21.10: ключ ветки design-lab сменён – корзина очищена по просьбе (0 товаров), v6 своей корзины не теряет */
+  var CART_KEY = 'ig-catalog-v6-lab-cart';
   var cart = {};
   function cartLoad(raw) { try { var c = JSON.parse(raw || '{}'); return c && typeof c === 'object' ? c : {}; } catch (e) { return {}; } }
   try { cart = cartLoad(localStorage.getItem(CART_KEY)); } catch (e) { cart = {}; }
