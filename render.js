@@ -36,6 +36,9 @@
   /* фон шапки подкатегорий «Волос» и их групп: assets/hero/<id подкатегории>.jpg, 2880×480, в центре светло —
      заголовок читается. С 19.10.2026 — интерьеры из banners/horizontal/08_2026-10-19_hair-krea3-final
      (до этого — текстуры из 02_2026-10-12_hair-hero-textures). Группа берёт картинку своей подкатегории */
+  /* тёмные фоны шапки – на них шапка сайта в варианте для тёмного фона (светлый логотип, белый текст);
+     по замеру контраста 19.10 тёмный только «Мужской уход» */
+  var HERO_DARK = ['hair-muzhskoy-uhod'];
   var HERO_TEX = ['hair-okrashivanie', 'hair-blond', 'hair-uhod-dlya-volos', 'hair-terapiya', 'hair-zavivka',
     'hair-stayling', 'hair-nabory', 'hair-muzhskoy-uhod', 'hair-aksessuary', 'hair-instrumenty'];
   /* иконки групп «Волос» в чипах: assets/groups/<id>.png — набор icons/hair без прозрачных полей по бокам,
@@ -440,7 +443,7 @@
   } else {
     var texId = node.level === 3 ? node.parent : node.id;
     var tex = HERO_TEX.indexOf(texId) > -1 ? 'assets/hero-tall/' + texId + '.jpg' : '';
-    html = '<section class="ig-hero' + (tex ? ' ig-hero--tex' : '') + '"' + (tex ? ' style="--hero-tex: url(&quot;' + tex + '&quot;)"' : '') + '><div class="ig-container">' + crumbsHTML() +
+    html = '<section class="ig-hero' + (tex ? ' ig-hero--tex' : '') + (tex && HERO_DARK.indexOf(texId) > -1 ? ' ig-hero--dark' : '') + '"' + (tex ? ' style="--hero-tex: url(&quot;' + tex + '&quot;)"' : '') + '><div class="ig-container">' + crumbsHTML() +
       '<h1 class="igro-promo ig-hero__title">' + esc(node.title) + '</h1>' +
       '</div></section>';
   }

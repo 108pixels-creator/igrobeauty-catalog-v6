@@ -275,7 +275,8 @@
   if (mast) {
     var docEl = document.documentElement;
     var heroEl = document.querySelector('#page > .ig-cathero, #page > .ig-hero');
-    mast.classList.toggle('is-on-dark', !!(heroEl && heroEl.classList.contains('ig-cathero')));
+    /* тёмный баннер: сцена категории или фон подкатегории с пометкой ig-hero--dark (render.js, HERO_DARK) */
+    mast.classList.toggle('is-on-dark', !!(heroEl && (heroEl.classList.contains('ig-cathero') || heroEl.classList.contains('ig-hero--dark'))));
     var lastY = window.scrollY, mastTick = false;
     var mastSlot = mast.parentNode;
     var mastNav = mast.querySelector('.ig-mainnav');
