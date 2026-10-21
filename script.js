@@ -375,10 +375,11 @@
       /* естественное место шапки – под плашкой со скидкой (offsetTop у прилипшего слота уже сдвинут) */
       var bar = document.querySelector('.ig-topbar');
       var slotTop = bar ? bar.offsetHeight : 0;
-      mast.classList.toggle('is-clear', y <= 0);
       /* полная шапка ушла из виду целиком — компактная; вернулись к началу — снова полная */
       var compact = y > slotTop + fullH;
       setCompact(compact);
+      /* полная шапка всегда прозрачная (белая – только при наведении, фокусе или открытом каталоге), компактная – белая */
+      mast.classList.toggle('is-clear', !compact);
       if (compact) {
         fullOffset = 0;
         if (dy > 0) collapseMast(true);
