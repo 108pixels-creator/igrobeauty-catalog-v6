@@ -1322,6 +1322,9 @@ ul { margin: 0; padding: 0; list-style: none; }
    Состояния ставит script.js. Цвета — через переменные --mast-*, белая подложка их сбрасывает
    ========================================================================== */
 .ig-mast-slot { position: sticky; top: 0; z-index: var(--z-sticky); height: 0; }
+/* компактная шапка выезжает сверху за 0,25 с; полная уходит вместе со страницей (сдвиг без перехода) */
+.ig-mast.is-compact { transition: background-color var(--mast-dur) var(--mast-ease), color 0.15s var(--mast-ease), transform var(--mast-dur) var(--mast-ease); }
+.ig-mast.is-compact.is-entering { transform: translateY(-100%); transition: none; }
 .ig-mast {
   --mast-dur: 0.25s;                       /* как у референса; при «уменьшить движение» — мгновенно */
   --mast-ease: ease-in-out;
@@ -1406,8 +1409,8 @@ ul { margin: 0; padding: 0; list-style: none; }
 .ig-logo__svg .m-acc { fill: var(--mast-mark-accent, #004522); transition: fill 0.15s ease; }
 .ig-mast .ig-logo__svg { transition: width var(--mast-dur) var(--mast-ease); }
 .ig-mast .ig-logo__word { font-size: 20px; color: var(--mast-logo-ink); transition: color 0.15s var(--mast-ease), font-size var(--mast-dur) var(--mast-ease); }
-.ig-mast.is-collapsed .ig-logo__word { animation: ig-logo-swap var(--mast-dur) var(--mast-ease); }
-.ig-mast.was-collapsed:not(.is-collapsed) .ig-logo__word { animation: ig-logo-swap-back var(--mast-dur) var(--mast-ease); }
+.ig-mast.is-compact .ig-logo__word { animation: ig-logo-swap var(--mast-dur) var(--mast-ease); }
+.ig-mast.was-compact:not(.is-compact) .ig-logo__word { animation: ig-logo-swap-back var(--mast-dur) var(--mast-ease); }
 @keyframes ig-logo-swap { 0% { opacity: 1; } 35%, 60% { opacity: 0; } 100% { opacity: 1; } }
 @keyframes ig-logo-swap-back { 0% { opacity: 1; } 35%, 60% { opacity: 0; } 100% { opacity: 1; } }
 .ig-mast .ig-logo__motto { color: var(--mast-fg); transition: color 0.15s var(--mast-ease); }
@@ -1458,16 +1461,16 @@ ul { margin: 0; padding: 0; list-style: none; }
 /* сжатая шапка: знак логотипа и иконки, без подписей; меню спрятано */
 .ig-mast.is-collapsed .ig-mainnav { grid-template-rows: 0fr; }
 .ig-mast.is-collapsed .ig-mainnav__inner { opacity: 0; visibility: hidden; transition-delay: 0s; }
-.ig-mast.is-collapsed .ig-header__inner { padding-block: var(--space-2); }
-.ig-mast.is-collapsed .ig-logo { gap: 0; }
-.ig-mast.is-collapsed .ig-logo__mark { flex-direction: row; gap: 8px; }
-.ig-mast.is-collapsed .ig-logo__svg { width: 33px; }
-.ig-mast.is-collapsed .ig-logo__word { font-size: 25px; }
-.ig-mast.is-collapsed .ig-logo__tagline { max-width: 0; max-height: 0; opacity: 0; }
-.ig-mast.is-collapsed .ig-search { opacity: 0; visibility: hidden; }
-.ig-mast.is-collapsed .ig-search-btn { display: inline-flex; }
+.ig-mast.is-compact .ig-header__inner { padding-block: var(--space-2); }
+.ig-mast.is-compact .ig-logo { gap: 0; }
+.ig-mast.is-compact .ig-logo__mark { flex-direction: row; gap: 8px; }
+.ig-mast.is-compact .ig-logo__svg { width: 33px; }
+.ig-mast.is-compact .ig-logo__word { font-size: 25px; }
+.ig-mast.is-compact .ig-logo__tagline { max-width: 0; max-height: 0; opacity: 0; }
+.ig-mast.is-compact .ig-search { opacity: 0; visibility: hidden; }
+.ig-mast.is-compact .ig-search-btn { display: inline-flex; }
 /* подпись «Вход / Регистрация» в сжатой шапке прячется, сумма корзины остаётся (просьба 21.10) */
-.ig-mast.is-collapsed .ig-action__label { max-width: 0; opacity: 0; }
+.ig-mast.is-compact .ig-action__label { max-width: 0; opacity: 0; }
 
 /* баннер начинается под плашкой со скидкой и уходит под шапку: сверху к нему добавлена высота шапки
    (--mast-h ставит script.js). Фоны «Волос» — высокие полосы assets/hero-tall/ (тот же кадр, выше на 192 px) */
@@ -1475,14 +1478,14 @@ ul { margin: 0; padding: 0; list-style: none; }
 .ig-cathero { padding-top: calc(var(--space-3) + var(--mast-h, 0px)); }
 @media (max-width: 767px) {
   .ig-hero { padding-top: calc(var(--space-5) + var(--mast-h, 0px)); }
-  .ig-mast.is-collapsed .ig-logo__svg { width: 28px; }
-  .ig-mast.is-collapsed .ig-logo__word { font-size: 21px; }
+  .ig-mast.is-compact .ig-logo__svg { width: 28px; }
+  .ig-mast.is-compact .ig-logo__word { font-size: 21px; }
   .ig-mast .ig-logo__word { font-size: var(--font-size-micro); }
   /* на телефоне поиск – отдельной строкой: в сжатой шапке строка складывается вместе с отступом над ней */
   .ig-mast .ig-header__inner { transition: padding var(--mast-dur) var(--mast-ease), row-gap var(--mast-dur) var(--mast-ease); }
   .ig-mast .ig-search { max-height: var(--size-control-md); overflow: hidden; transition: max-height var(--mast-dur) var(--mast-ease), opacity 0.15s var(--mast-ease), visibility 0.15s var(--mast-ease), background var(--mast-dur) var(--mast-ease); }
-  .ig-mast.is-collapsed .ig-header__inner { row-gap: 0; }
-  .ig-mast.is-collapsed .ig-search { max-height: 0; border-width: 0; }
+  .ig-mast.is-compact .ig-header__inner { row-gap: 0; }
+  .ig-mast.is-compact .ig-search { max-height: 0; border-width: 0; }
 }
 @media (prefers-reduced-motion: reduce) {
   .ig-mast { --mast-dur: 0.01s; }
@@ -1502,11 +1505,11 @@ ul { margin: 0; padding: 0; list-style: none; }
 .ig-toolbar__panel.is-stuck {
   position: fixed;
   left: 0; right: 0;
-  top: calc(var(--mast-h, 0px) - 1px);    /* вплотную под полной шапкой, на её нижней линии */
+  top: calc(var(--tb-top, var(--mast-h, 0px)) - 1px);   /* вплотную под компактной шапкой с меню */
   z-index: calc(var(--z-sticky) - 1);     /* под шапкой — уезжает за неё */
   border-bottom: 1px solid var(--border-subtle);
 }
-.ig-toolbar__panel.is-stuck.is-hidden { transform: translateY(calc(-100% - var(--mast-h, 0px) - 20px)); }
+.ig-toolbar__panel.is-stuck.is-hidden { transform: translateY(calc(-100% - var(--tb-top, var(--mast-h, 0px)) - 20px)); }
 .ig-toolbar__panel.is-instant { transition: none; }
 @media (prefers-reduced-motion: reduce) {
   .ig-toolbar__panel { transition-duration: 0.01s; }

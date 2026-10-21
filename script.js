@@ -262,40 +262,70 @@
     update();
   });
 
-  /* ---------- шапка поверх баннера (эксперимент design-lab, референс goldapple.ru) ----------
-     is-clear — страница в самом верху: шапка прозрачная; is-collapsed — прокрутка вниз: шапка сжата до знака
-     логотипа и иконок; прокрутка вверх — меню выезжает обратно. is-on-dark — баннер тёмный, текст белый.
-     --mast-h — высота полной шапки: на столько баннер уходит под неё */
+  /* ---------- шапка поверх баннера: три состояния (эксперимент design-lab, 21.10.2026) ----------
+     1. Полная — пока страница в начале: квадратный логотип, поиск, меню. Не закреплена: уходит вверх
+        вместе со страницей (сдвиг transform, слот шапки нулевой высоты прилипает к верху окна).
+     2. Компактная — как только полная ушла из виду (прокрутка ниже её низа): выезжает сверху, горизонтальный
+        логотип и иконки (is-compact). Прокрутка вниз — меню спрятано (is-collapsed).
+     3. Компактная с меню — прокрутка вверх ниже первого экрана: под компактной строкой выезжают меню и
+        панель фильтров; в полную шапка возвращается, только когда страница снова в начале.
+     is-clear — страница в самом верху: шапка прозрачная; is-on-dark — баннер тёмный, текст белый.
+     --mast-h — высота полной шапки (на столько баннер уходит под неё); --tb-top — где встаёт панель фильтров */
   var mast = document.querySelector('[data-mast]');
   if (mast) {
     var docEl = document.documentElement;
     var heroEl = document.querySelector('#page > .ig-cathero, #page > .ig-hero');
     mast.classList.toggle('is-on-dark', !!(heroEl && heroEl.classList.contains('ig-cathero')));
     var lastY = window.scrollY, mastTick = false;
+    var mastSlot = mast.parentNode;
+    var mastNav = mast.querySelector('.ig-mainnav');
+    var fullH = mast.offsetHeight, compactH = 60, navH = 40;
     var setMastH = function () {
-      if (!mast.classList.contains('is-collapsed')) docEl.style.setProperty('--mast-h', mast.offsetHeight + 'px');
+      if (mast.classList.contains('is-compact')) return;
+      fullH = mast.offsetHeight;
+      docEl.style.setProperty('--mast-h', fullH + 'px');
+      var inner = mastNav && mastNav.querySelector('.ig-mainnav__inner');
+      if (inner && inner.offsetHeight) navH = inner.offsetHeight;
     };
+    /* высота компактной строки — когда шапка досжалась */
+    mast.addEventListener('transitionend', function (e) {
+      if (e.target === mastNav && mast.classList.contains('is-collapsed')) compactH = mast.offsetHeight;
+    });
+    var isCompact = function () { return mast.classList.contains('is-compact'); };
+    var isCollapsed = function () { return mast.classList.contains('is-collapsed'); };
     var collapseMast = function (on) {
-      if (mast.classList.contains('is-collapsed') === on) return;
+      if (isCollapsed() === on) return;
       if (on && megaOpen()) setMega(false);
       mast.classList.toggle('is-collapsed', on);
-      if (on) mast.classList.add('was-collapsed');
     };
-    /* панель фильтров (референс goldapple.ru/volosy): пока её место в странице ниже шапки — стоит на месте;
-       ушла под шапку — закрепляется под полной шапкой, секция держит её высоту (страница не прыгает).
-       Закреплённая панель едет вместе с шапкой: прокрутка вниз — уезжает вверх за шапку, вверх — выезжает.
-       Граница — низ шапки в её нынешнем виде: у сжатой (60 px) панель стоит на месте дольше, чем у полной,
-       иначе под сжатой шапкой оставалось пустое место панели (замечание 20.10) */
+    var setCompact = function (on) {
+      if (isCompact() === on) return;
+      if (megaOpen()) setMega(false);
+      if (on) {
+        /* компактная выезжает сверху */
+        mast.style.transform = '';
+        mast.classList.add('is-compact', 'was-compact', 'is-entering');
+        mast.getBoundingClientRect();
+        requestAnimationFrame(function () { mast.classList.remove('is-entering'); });
+      } else {
+        mast.classList.remove('is-compact', 'is-entering');
+      }
+    };
+    /* где стоит панель фильтров: под компактной строкой и меню */
+    var tbTop = function () { return compactH + navH; };
+    /* низ видимой шапки — до него панель фильтров стоит на месте */
+    var mastBottom = function () {
+      if (isCompact()) return isCollapsed() ? compactH : compactH + navH;
+      return Math.max(0, mastSlot.getBoundingClientRect().top) + fullH - fullOffset;
+    };
+    var fullOffset = 0;
+
+    /* панель фильтров (референс goldapple.ru/volosy): пока её место ниже шапки — стоит на месте; ушла под
+       шапку — закрепляется под компактной шапкой с меню, секция держит её высоту (страница не прыгает).
+       Прокрутка вниз — уезжает вверх вместе с меню, вверх — выезжает */
     var tbSec = document.querySelector('.ig-toolbar');
     var tbPanel = tbSec && tbSec.querySelector('[data-tbpanel]');
     var tbStuck = false;
-    var mastSlot = mast.parentNode;
-    var collapsedH = 60;                                 /* уточняется, когда шапка досжимается */
-    var mastNav = mast.querySelector('.ig-mainnav');
-    mast.addEventListener('transitionend', function (e) {
-      if (e.target === mastNav && mast.classList.contains('is-collapsed')) collapsedH = mast.offsetHeight;
-    });
-    /* панель переехала (на место ↔ под шапку): начинает с прежней высоты экрана и доезжает до новой за 0,25 с */
     var slideFrom = function (fromTop) {
       var d = fromTop - tbPanel.getBoundingClientRect().top;
       if (Math.abs(d) < 1) return;
@@ -307,12 +337,11 @@
     };
     var placeTb = function () {
       if (!tbPanel) return;
-      var collapsed = mast.classList.contains('is-collapsed');
-      var full = parseFloat(getComputedStyle(docEl).getPropertyValue('--mast-h')) || mast.offsetHeight;
-      var edge = Math.max(0, mastSlot.getBoundingClientRect().top) + (collapsed ? collapsedH : full);
-      var stick = tbSec.getBoundingClientRect().top < edge - 1;
+      docEl.style.setProperty('--tb-top', tbTop() + 'px');
+      var hide = isCompact() && isCollapsed();
+      var stick = tbSec.getBoundingClientRect().top < mastBottom() - 1;
       if (stick === tbStuck) {
-        if (stick) tbPanel.classList.toggle('is-hidden', collapsed);
+        if (stick) tbPanel.classList.toggle('is-hidden', hide);
         return;
       }
       tbStuck = stick;
@@ -320,8 +349,8 @@
       var wasShown = !tbPanel.classList.contains('is-hidden');
       if (stick) {
         tbSec.style.height = tbPanel.offsetHeight + 'px';
-        if (collapsed) {
-          /* место панели уже под сжатой шапкой — закрепляется сразу спрятанной */
+        if (hide) {
+          /* место панели уже под шапкой — закрепляется сразу спрятанной */
           tbPanel.classList.add('is-instant', 'is-stuck', 'is-hidden');
           requestAnimationFrame(function () { requestAnimationFrame(function () { tbPanel.classList.remove('is-instant'); }); });
         } else {
@@ -342,10 +371,23 @@
     var onMastScroll = function () {
       mastTick = false;
       var y = Math.max(0, window.scrollY), dy = y - lastY;
+      /* естественное место шапки – под плашкой со скидкой (offsetTop у прилипшего слота уже сдвинут) */
+      var bar = document.querySelector('.ig-topbar');
+      var slotTop = bar ? bar.offsetHeight : 0;
       mast.classList.toggle('is-clear', y <= 0);
-      if (y <= 0) collapseMast(false);
-      else if (dy > 0 && y > 24) collapseMast(true);   /* у референса сжатие — после первых ~20–40 px вниз */
-      else if (dy < 0) collapseMast(false);
+      /* полная шапка ушла из виду целиком — компактная; вернулись к началу — снова полная */
+      var compact = y > slotTop + fullH;
+      setCompact(compact);
+      if (compact) {
+        fullOffset = 0;
+        if (dy > 0) collapseMast(true);
+        else if (dy < 0) collapseMast(false);
+      } else {
+        collapseMast(false);
+        /* полная шапка уходит вверх вместе со страницей */
+        fullOffset = Math.min(fullH, Math.max(0, y - slotTop));
+        mast.style.transform = fullOffset ? 'translateY(' + (-fullOffset) + 'px)' : '';
+      }
       lastY = y;
       placeTb();
     };
@@ -357,7 +399,7 @@
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(setMastH);
     setMastH();
     onMastScroll();
-    /* иконка поиска в сжатой шапке — наверх, к полю поиска */
+    /* иконка поиска в компактной шапке — наверх, к полю поиска */
     mast.addEventListener('click', function (e) {
       if (!e.target.closest('[data-search-open]')) return;
       var input = mast.querySelector('.igro-search__input');
