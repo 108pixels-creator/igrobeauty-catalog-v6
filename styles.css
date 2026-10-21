@@ -1247,7 +1247,7 @@ ul { margin: 0; padding: 0; list-style: none; }
 
   .ig-header__inner { flex-wrap: wrap; gap: var(--space-3); padding-block: var(--space-3); }
   .ig-logo { order: 1; gap: var(--space-2); }
-  .ig-logo__img { width: 44px; }
+  .ig-logo__svg { width: 44px; }
   .ig-logo__word { font-size: var(--font-size-micro); }
   .ig-logo__tagline { gap: var(--space-1); }
   .ig-logo__motto,
@@ -1326,10 +1326,11 @@ ul { margin: 0; padding: 0; list-style: none; }
   --mast-bg: var(--surface-card);
   --mast-fg: var(--text-default);
   --mast-icon: var(--text-muted);
-  --mast-logo-ink: #335351;                /* цвет слова «ИГРО» — из логотипа */
-  --mast-logo-filter: none;
+  --mast-logo-ink: #111111;                /* слово «ИГРО» и полосы знака — по логотипу Figma 2636:1957 */
+  --mast-mark-ink: #111111;
+  --mast-mark-accent: #004522;            /* зелёные полосы знака */
   --mast-field: var(--surface-subtle);
-  --mast-field-line: var(--border-control);
+  --mast-field-line: transparent;          /* поиск без обводки (21.10); обводка — в фокусе */
   --mast-field-fg: var(--text-default);
   position: relative;
   color: var(--mast-fg);
@@ -1356,9 +1357,8 @@ ul { margin: 0; padding: 0; list-style: none; }
   --mast-fg: var(--text-on-dark);
   --mast-icon: var(--text-on-dark);
   --mast-logo-ink: var(--text-on-dark);
-  --mast-logo-filter: brightness(0) invert(1);
-  --mast-field: var(--wash-on-dark);
-  --mast-field-fg: var(--text-on-dark);
+  --mast-mark-ink: var(--text-on-dark);
+  --mast-mark-accent: var(--text-on-dark);   /* логотип для тёмного фона (Figma 2636:1979) — весь белый */
 }
 /* фокус внутри шапки или открытый каталог — белая подложка, как при наведении */
 .ig-mast.is-clear:focus-within,
@@ -1366,10 +1366,11 @@ ul { margin: 0; padding: 0; list-style: none; }
   --mast-bg: var(--surface-card);
   --mast-fg: var(--text-default);
   --mast-icon: var(--text-muted);
-  --mast-logo-ink: #335351;
-  --mast-logo-filter: none;
+  --mast-logo-ink: #111111;
+  --mast-mark-ink: #111111;
+  --mast-mark-accent: #004522;
   --mast-field: var(--surface-subtle);
-  --mast-field-line: var(--border-control);
+  --mast-field-line: transparent;
   --mast-field-fg: var(--text-default);
 }
 @media (hover: hover) {
@@ -1377,10 +1378,11 @@ ul { margin: 0; padding: 0; list-style: none; }
     --mast-bg: var(--surface-card);
     --mast-fg: var(--text-default);
     --mast-icon: var(--text-muted);
-    --mast-logo-ink: #335351;
-    --mast-logo-filter: none;
+    --mast-logo-ink: #111111;
+    --mast-mark-ink: #111111;
+    --mast-mark-accent: #004522;
     --mast-field: var(--surface-subtle);
-    --mast-field-line: var(--border-control);
+    --mast-field-line: transparent;
     --mast-field-fg: var(--text-default);
   }
 }
@@ -1389,9 +1391,23 @@ ul { margin: 0; padding: 0; list-style: none; }
 .ig-mast .ig-header { background: none; border-bottom: 0; }
 .ig-mast .ig-header__inner { transition: padding var(--mast-dur) var(--mast-ease); }
 .ig-mast .ig-logo { color: var(--mast-fg); transition: gap var(--mast-dur) var(--mast-ease); }
-.ig-mast .ig-logo__mark { transition: gap var(--mast-dur) var(--mast-ease); }
-.ig-mast .ig-logo__img { filter: var(--mast-logo-filter); transition: width var(--mast-dur) var(--mast-ease), filter 0.15s var(--mast-ease); }
-.ig-mast .ig-logo__word { color: var(--mast-logo-ink); transition: color 0.15s var(--mast-ease), opacity 0.15s var(--mast-ease), max-height var(--mast-dur) var(--mast-ease); max-height: 24px; overflow: hidden; }
+/* логотип из Figma: квадратный (2747:4258) — знак, под ним «ИГРО» (кегль 0,305 ширины знака, отступ 0,1);
+   горизонтальный (2636:1957) — «ИГРО» справа (кегль 0,79 высоты знака, отступ 0,26). Разрядка 0,15em.
+   Переход: знак плавно меняет размер, слово гаснет, на середине переезжает (flex-direction, allow-discrete)
+   и снова проявляется */
+.ig-mast .ig-logo__mark {
+  gap: 6px;
+  transition: gap var(--mast-dur) var(--mast-ease), flex-direction var(--mast-dur) allow-discrete;
+}
+.ig-logo__svg { display: block; width: 65px; height: auto; }
+.ig-logo__svg .m-ink { fill: var(--mast-mark-ink, #111111); transition: fill 0.15s ease; }
+.ig-logo__svg .m-acc { fill: var(--mast-mark-accent, #004522); transition: fill 0.15s ease; }
+.ig-mast .ig-logo__svg { transition: width var(--mast-dur) var(--mast-ease); }
+.ig-mast .ig-logo__word { font-size: 20px; color: var(--mast-logo-ink); transition: color 0.15s var(--mast-ease), font-size var(--mast-dur) var(--mast-ease); }
+.ig-mast.is-collapsed .ig-logo__word { animation: ig-logo-swap var(--mast-dur) var(--mast-ease); }
+.ig-mast.was-collapsed:not(.is-collapsed) .ig-logo__word { animation: ig-logo-swap-back var(--mast-dur) var(--mast-ease); }
+@keyframes ig-logo-swap { 0% { opacity: 1; } 35%, 60% { opacity: 0; } 100% { opacity: 1; } }
+@keyframes ig-logo-swap-back { 0% { opacity: 1; } 35%, 60% { opacity: 0; } 100% { opacity: 1; } }
 .ig-mast .ig-logo__motto { color: var(--mast-fg); transition: color 0.15s var(--mast-ease); }
 .ig-mast .ig-logo__tagline { max-width: 240px; max-height: 80px; overflow: hidden; white-space: nowrap; transition: max-width var(--mast-dur) var(--mast-ease), max-height var(--mast-dur) var(--mast-ease), opacity 0.15s var(--mast-ease); }
 .ig-mast .igro-search {
@@ -1401,8 +1417,8 @@ ul { margin: 0; padding: 0; list-style: none; }
 }
 .ig-mast .igro-search__input { color: var(--mast-field-fg); }
 .ig-mast .igro-search__input::placeholder { color: currentColor; opacity: 0.7; }
-.ig-mast .igro-search__icon { color: var(--mast-icon); }
-.ig-mast .igro-search:focus-within { background: var(--surface-card); }
+.ig-mast .igro-search__icon { color: var(--text-muted); }   /* поле поиска одинаковое на любом баннере — иконка серая */
+.ig-mast .igro-search:focus-within { background: var(--surface-card); border-color: var(--border-focus); box-shadow: var(--focus-field); }
 /* иконки и подписи — в цвет текста шапки, как у референса (в ДС ghost IconButton – серые) */
 .ig-mast .ig-actions .igro-icon-btn,
 .ig-mast .ig-action { color: var(--mast-fg); }
@@ -1420,6 +1436,8 @@ ul { margin: 0; padding: 0; list-style: none; }
   transition: grid-template-rows var(--mast-dur) var(--mast-ease);
 }
 .ig-mast .ig-mainnav__inner {
+  width: 100%;
+  box-sizing: border-box;
   min-height: 0;
   overflow: hidden;
   transition: opacity 0.125s var(--mast-ease) 0.125s, visibility 0.125s var(--mast-ease) 0.125s;
@@ -1440,9 +1458,9 @@ ul { margin: 0; padding: 0; list-style: none; }
 .ig-mast.is-collapsed .ig-mainnav__inner { opacity: 0; visibility: hidden; transition-delay: 0s; }
 .ig-mast.is-collapsed .ig-header__inner { padding-block: var(--space-2); }
 .ig-mast.is-collapsed .ig-logo { gap: 0; }
-.ig-mast.is-collapsed .ig-logo__mark { gap: 0; }
-.ig-mast.is-collapsed .ig-logo__img { width: 40px; }
-.ig-mast.is-collapsed .ig-logo__word { max-height: 0; opacity: 0; }
+.ig-mast.is-collapsed .ig-logo__mark { flex-direction: row; gap: 8px; }
+.ig-mast.is-collapsed .ig-logo__svg { width: 33px; }
+.ig-mast.is-collapsed .ig-logo__word { font-size: 25px; }
 .ig-mast.is-collapsed .ig-logo__tagline { max-width: 0; max-height: 0; opacity: 0; }
 .ig-mast.is-collapsed .ig-search { opacity: 0; visibility: hidden; }
 .ig-mast.is-collapsed .ig-search-btn { display: inline-flex; }
@@ -1455,7 +1473,9 @@ ul { margin: 0; padding: 0; list-style: none; }
 .ig-cathero { padding-top: calc(var(--space-3) + var(--mast-h, 0px)); }
 @media (max-width: 767px) {
   .ig-hero { padding-top: calc(var(--space-5) + var(--mast-h, 0px)); }
-  .ig-mast.is-collapsed .ig-logo__img { width: 36px; }
+  .ig-mast.is-collapsed .ig-logo__svg { width: 28px; }
+  .ig-mast.is-collapsed .ig-logo__word { font-size: 21px; }
+  .ig-mast .ig-logo__word { font-size: var(--font-size-micro); }
   /* на телефоне поиск – отдельной строкой: в сжатой шапке строка складывается вместе с отступом над ней */
   .ig-mast .ig-header__inner { transition: padding var(--mast-dur) var(--mast-ease), row-gap var(--mast-dur) var(--mast-ease); }
   .ig-mast .ig-search { max-height: var(--size-control-md); overflow: hidden; transition: max-height var(--mast-dur) var(--mast-ease), opacity 0.15s var(--mast-ease), visibility 0.15s var(--mast-ease), background var(--mast-dur) var(--mast-ease); }
@@ -1493,3 +1513,6 @@ ul { margin: 0; padding: 0; list-style: none; }
 /* фон каталога — белый (эксперимент design-lab, 21.10.2026): карточки без рамки стоят прямо на странице */
 body.igro { background: var(--surface-card); }
 .ig-toolbar__panel { background: var(--surface-card); }
+
+/* иконка «Каталога» – сплошная заливка без обводки (просьба 21.10): те же четыре плитки, залитые */
+.ig-navlink .ig-ic--grid { --ic: url("data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20viewBox=%270%200%2024%2024%27%20fill=%27%23000%27%3E%3Crect%20x=%273%27%20y=%273%27%20width=%278%27%20height=%2710%27%20rx=%271.5%27/%3E%3Crect%20x=%2713%27%20y=%273%27%20width=%278%27%20height=%276%27%20rx=%271.5%27/%3E%3Crect%20x=%2713%27%20y=%2711%27%20width=%278%27%20height=%2710%27%20rx=%271.5%27/%3E%3Crect%20x=%273%27%20y=%2715%27%20width=%278%27%20height=%276%27%20rx=%271.5%27/%3E%3C/svg%3E"); }

@@ -279,6 +279,7 @@
       if (mast.classList.contains('is-collapsed') === on) return;
       if (on && megaOpen()) setMega(false);
       mast.classList.toggle('is-collapsed', on);
+      if (on) mast.classList.add('was-collapsed');
     };
     /* панель фильтров (референс goldapple.ru/volosy): пока её место в странице ниже шапки — стоит на месте;
        ушла под шапку — закрепляется под полной шапкой, секция держит её высоту (страница не прыгает).
