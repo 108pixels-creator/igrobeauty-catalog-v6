@@ -1445,8 +1445,8 @@ ul { margin: 0; padding: 0; list-style: none; }
 .ig-mast.is-collapsed .ig-logo__tagline { max-width: 0; max-height: 0; opacity: 0; }
 .ig-mast.is-collapsed .ig-search { opacity: 0; visibility: hidden; }
 .ig-mast.is-collapsed .ig-search-btn { display: inline-flex; }
-.ig-mast.is-collapsed .ig-action__label,
-.ig-mast.is-collapsed .ig-cart__sum { max-width: 0; opacity: 0; }
+/* подпись «Вход / Регистрация» в сжатой шапке прячется, сумма корзины остаётся (просьба 21.10) */
+.ig-mast.is-collapsed .ig-action__label { max-width: 0; opacity: 0; }
 
 /* баннер начинается под плашкой со скидкой и уходит под шапку: сверху к нему добавлена высота шапки
    (--mast-h ставит script.js). Фоны «Волос» — высокие полосы assets/hero-tall/ (тот же кадр, выше на 192 px) */
