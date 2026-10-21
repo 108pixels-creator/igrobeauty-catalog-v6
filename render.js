@@ -502,10 +502,13 @@
 
   /* чипы быстрых фильтров — Tag ДС (кнопка-переключатель, выбранный — aria-pressed); без числа товаров:
      числа остались только в общем счётчике и в панели */
+  /* подпись чипа или ссылки с запасом ширины под полужирное выбранное состояние: рядом невидимая полужирная копия
+     в той же ячейке сетки – при выборе ширина не меняется и строка не дёргается (замечание 21.10) */
+  function tw(t) { return '<span class="ig-tw" data-t="' + esc(t) + '">' + esc(t) + '</span>'; }
   function chipHTML(k, v, on) {
     var medal = k === 'g' && brandType(v) === 'ex';
     return '<button type="button" class="igro-tag igro-tag--interactive' + (medal ? ' ig-tag-hit' : '') + '" aria-pressed="' + (on ? 'true' : 'false') + '" data-facet="' + k + '" data-val="' + esc(v) + '">' +
-      esc(v) + (medal ? MEDAL : '') + '</button>';
+      tw(v) + (medal ? MEDAL : '') + '</button>';
   }
   function removableTag(k, v, label) {
     return '<span class="igro-tag igro-tag--selected igro-tag--removable">' + esc(label) +
@@ -523,7 +526,7 @@
     var n = panelSelected(sel);
     /* «Фильтры» — Button sm: ghost, а когда в панели что-то выбрано — dark */
     var left = '<button type="button" class="igro-btn igro-btn--sm ' + (n ? 'igro-btn--dark' : 'igro-btn--ghost') + ' ig-filters-btn" data-open="filters" aria-haspopup="dialog">' +
-      ic('filter', 18) + 'Фильтры<span class="ig-btn__num">' + (n ? '· ' + n : '') + '</span></button>';
+      ic('filter', 18) + 'Фильтры<span class="ig-btn__num' + (n ? '' : ' is-empty') + '"' + (n ? '' : ' aria-hidden="true"') + '>· ' + (n || 0) + '</span></button>';
 
     /* ключевые бренды раздела. «Все бренды» — только когда ключевых брендов два и больше */
     if (soleBrand) {
@@ -532,7 +535,7 @@
     } else if (keyBrands.length) {
       if (keyBrands.length > 1) {
         var allOn = !sel.g.length;
-        left += '<button type="button" class="igro-tag igro-tag--interactive" aria-pressed="' + (allOn ? 'true' : 'false') + '" data-all-brands>Все бренды</button>';
+        left += '<button type="button" class="igro-tag igro-tag--interactive" aria-pressed="' + (allOn ? 'true' : 'false') + '" data-all-brands>' + tw('Все бренды') + '</button>';
       }
       var ab = available('g');
       keyBrands.forEach(function (b) {
@@ -575,7 +578,7 @@
     } else if (typeCount > 1) {
       var links = available('y').map(function (v) {
         var on = sel.y.indexOf(v) > -1;
-        return '<button type="button" class="ig-tlink" aria-pressed="' + (on ? 'true' : 'false') + '" data-facet="y" data-val="' + esc(v) + '">' + esc(v) + '</button>';
+        return '<button type="button" class="ig-tlink" aria-pressed="' + (on ? 'true' : 'false') + '" data-facet="y" data-val="' + esc(v) + '">' + tw(v) + '</button>';
       }).join('');
       if (links) rows += '<div class="ig-qf__row ig-qf__row--text"><span class="ig-qf__label">Тип продукта:</span>' +
         '<div class="ig-typelist" data-clamp="y">' + links +

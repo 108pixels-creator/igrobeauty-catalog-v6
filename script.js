@@ -309,7 +309,24 @@
         mast.getBoundingClientRect();
         requestAnimationFrame(function () { mast.classList.remove('is-entering'); });
       } else {
+        /* компактная уезжает вверх: её копия (без ссылок и id) уезжает поверх, под ней уже полная шапка */
+        var calm = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (!calm && document.body.animate) {
+          var ghost = mast.cloneNode(true);
+          ghost.removeAttribute('data-mast');
+          ghost.querySelectorAll('[id]').forEach(function (el) { el.removeAttribute('id'); });
+          ghost.setAttribute('aria-hidden', 'true');
+          ghost.inert = true;
+          ghost.classList.remove('is-entering');
+          ghost.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:calc(var(--z-sticky) + 1);pointer-events:none;transition:none;';
+          document.body.appendChild(ghost);
+          ghost.animate([{ transform: 'translateY(0)' }, { transform: 'translateY(-100%)' }], { duration: 250, easing: 'ease-in-out' })
+            .onfinish = function () { ghost.remove(); };
+        }
+        mast.classList.add('no-anim');
         mast.classList.remove('is-compact', 'is-entering');
+        mast.getBoundingClientRect();
+        requestAnimationFrame(function () { requestAnimationFrame(function () { mast.classList.remove('no-anim'); }); });
       }
     };
     /* где стоит панель фильтров: под компактной строкой и меню */
@@ -375,8 +392,11 @@
       /* естественное место шапки – под плашкой со скидкой (offsetTop у прилипшего слота уже сдвинут) */
       var bar = document.querySelector('.ig-topbar');
       var slotTop = bar ? bar.offsetHeight : 0;
-      /* полная шапка ушла из виду целиком — компактная; вернулись к началу — снова полная */
-      var compact = y > slotTop + fullH;
+      /* полная шапка ушла из виду целиком — компактная; при прокрутке вверх компактная держится, пока низ полной
+         шапки не дойдёт до низа компактной (с меню — 116 px), и только тогда уезжает вверх (замечание 21.10) */
+      var compact = isCompact()
+        ? y > slotTop + fullH - (isCollapsed() ? compactH : compactH + navH)
+        : y > slotTop + fullH;
       setCompact(compact);
       /* полная шапка всегда прозрачная (белая – только при наведении, фокусе или открытом каталоге), компактная – белая */
       mast.classList.toggle('is-clear', !compact);

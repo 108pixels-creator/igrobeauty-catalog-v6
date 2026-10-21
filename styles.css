@@ -600,7 +600,7 @@ ul { margin: 0; padding: 0; list-style: none; }
 
 /* «Фильтры» — Button sm; ширина под «Фильтры · 99», без счётчика содержимое по центру */
 .ig-filters-btn { min-width: 132px; }
-.ig-btn__num:empty { display: none; }
+.ig-btn__num:empty { display: none; }   /* у «Фильтров» число всегда есть – см. ig-btn__num.is-empty ниже */
 
 /* чипы — Tag ДС высотой малого контрола, чтобы строка стояла ровно с кнопкой «Фильтры» */
 .ig-toolbar .igro-tag,
@@ -1534,3 +1534,14 @@ ul { margin: 0; padding: 0; list-style: none; }
 @media (hover: hover) {
   .ig-toolbar .igro-tag__remove:hover { color: var(--text-default); }
 }
+
+/* ширина чипов, ссылок «Тип продукта» и кнопки «Фильтры» не меняется при выборе (замечание 21.10):
+   подпись и её невидимая полужирная копия лежат в одной ячейке – ширина сразу под полужирный текст;
+   у «Фильтров» место под «· N» есть всегда */
+.ig-tw { display: inline-grid; }
+.ig-tw::after { content: attr(data-t); grid-area: 1 / 1; height: 0; overflow: hidden; visibility: hidden; font-weight: var(--weight-semibold); pointer-events: none; }
+.ig-tw > * , .ig-tw { min-width: 0; }
+.ig-btn__num.is-empty { visibility: hidden; }
+.ig-btn__num { display: inline-block; min-width: 3ch; text-align: left; }
+/* полная шапка после компактной встаёт сразу в своём виде, без перестройки (переходы отключены на кадр) */
+.ig-mast.no-anim, .ig-mast.no-anim * { transition: none !important; animation: none !important; }
