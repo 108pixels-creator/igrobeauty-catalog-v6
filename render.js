@@ -578,7 +578,7 @@
     } else if (typeCount > 1) {
       var links = available('y').map(function (v) {
         var on = sel.y.indexOf(v) > -1;
-        return '<button type="button" class="ig-tlink" aria-pressed="' + (on ? 'true' : 'false') + '" data-facet="y" data-val="' + esc(v) + '">' + tw(v) + '</button>';
+        return '<button type="button" class="ig-tlink" aria-pressed="' + (on ? 'true' : 'false') + '" data-facet="y" data-val="' + esc(v) + '" data-t="' + esc(v) + '">' + esc(v) + '</button>';
       }).join('');
       if (links) rows += '<div class="ig-qf__row ig-qf__row--text"><span class="ig-qf__label">Тип продукта:</span>' +
         '<div class="ig-typelist" data-clamp="y">' + links +
