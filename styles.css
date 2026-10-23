@@ -349,7 +349,8 @@ ul { margin: 0; padding: 0; list-style: none; }
 }
 /* под-подразделы: при наведении текст сдвигается вправо на 8 px, слева проявляется квадратик 4 px цвета ссылки (23.10).
    Сдвигается только текст (span) – сама ссылка на месте, наведение не срывается у левого края */
-.ig-mega__links a span { display: inline-block; transition: transform var(--duration-fast) var(--ease-standard); }
+.ig-mega__links a { transition-duration: calc(var(--duration-fast) / 2); }   /* цвет – тоже вдвое быстрее (23.10) */
+.ig-mega__links a span { display: inline-block; transition: transform calc(var(--duration-fast) / 2) var(--ease-standard); }   /* вдвое быстрее (23.10) */
 .ig-mega__links a::before {
   content: "";
   position: absolute;
@@ -359,7 +360,7 @@ ul { margin: 0; padding: 0; list-style: none; }
   background: currentColor;
   opacity: 0;
   transform: scale(0);
-  transition: opacity var(--duration-fast) ease, transform var(--duration-fast) var(--ease-standard);
+  transition: opacity calc(var(--duration-fast) / 2) ease, transform calc(var(--duration-fast) / 2) var(--ease-standard);
 }
 @media (hover: hover) {
   .ig-mega__links a:hover span { transform: translateX(8px); }
