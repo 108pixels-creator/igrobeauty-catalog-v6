@@ -1585,3 +1585,21 @@ ul { margin: 0; padding: 0; list-style: none; }
   .ig-mast:not(.is-compact) .ig-header__inner { align-items: flex-end; }
   .ig-mast:not(.is-compact) .ig-logo { margin-bottom: -2.5px; }
 }
+
+/* иконка квадратной кнопки корзины – «корзина с плюсом» (Figma 2755:464): в раскрытом блоке обычная корзина
+   гаснет, на её месте проявляется корзина с плюсом (плюс выступает влево и вниз за поле 20 px, как в макете) */
+.ig-card__buyicon { position: relative; }
+.ig-card__buyicon svg:first-child { transition: width var(--buy-base) var(--ease-standard), height var(--buy-base) var(--ease-standard), opacity var(--buy-fast) ease; }
+.ig-card__buyicon .ig-card__buyicon-add {
+  position: absolute;
+  left: -1.16px;
+  top: 0;
+  width: 21.16px;
+  height: 21.84px;
+  opacity: 0;
+  transition: opacity var(--buy-fast) ease;
+}
+.ig-card__buy.is-open .ig-card__buyicon svg:first-child { opacity: 0; }
+.ig-card__buy.is-open .ig-card__buyicon .ig-card__buyicon-add { opacity: 1; transition-delay: var(--buy-fast); }
+.ig-card__buy .ig-card__buyicon svg.ig-card__buyicon-add,
+.ig-card__buy.is-open .ig-card__buyicon svg.ig-card__buyicon-add { width: 21.16px; height: 21.84px; }   /* размер из макета – сильнее общего правила иконок 18/20 px */
