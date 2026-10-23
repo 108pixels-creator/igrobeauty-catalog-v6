@@ -357,7 +357,11 @@
       if (!tbPanel) return;
       docEl.style.setProperty('--tb-top', tbTop() + 'px');
       var hide = isCompact() && isCollapsed();
-      var stick = tbSec.getBoundingClientRect().top < mastBottom() - 1;
+      /* прокрутка вниз (шапка свёрнута): панель уезжает вместе со страницей под шапку и закрепляется спрятанной,
+         только когда целиком ушла под неё – без пустого места в странице (замечание 23.10);
+         прокрутка вверх (шапка с меню): закрепляется, как только её место ушло под шапку, и выезжает */
+      var secRect = tbSec.getBoundingClientRect();
+      var stick = hide ? secRect.bottom < mastBottom() : secRect.top < mastBottom() - 1;
       if (stick === tbStuck) {
         if (stick) tbPanel.classList.toggle('is-hidden', hide);
         return;
