@@ -397,11 +397,11 @@ ul { margin: 0; padding: 0; list-style: none; }
     background: var(--surface-inverse);
     transform: translateY(var(--marker-y, 0));
     pointer-events: none;
-    transition: transform var(--duration-base) var(--ease-standard), height var(--duration-base) var(--ease-standard);
+    transition: transform calc(var(--duration-base) / 2) var(--ease-standard), height calc(var(--duration-base) / 2) var(--ease-standard);   /* вдвое быстрее (23.10) */
   }
   .ig-mega--sidebar .ig-mega__cats.is-instant .ig-mega__marker { transition: none; }
   .ig-mega--sidebar .ig-mega__cat.is-active { background: transparent; }
-  .ig-mega--sidebar .ig-mega__cat { transition: color var(--duration-base) var(--ease-standard), background var(--duration-fast) ease; }
+  .ig-mega--sidebar .ig-mega__cat { transition: color calc(var(--duration-base) / 2) var(--ease-standard), background calc(var(--duration-fast) / 2) ease; }   /* вдвое быстрее (23.10) */
   .ig-mega--sidebar .ig-mega__cols { grid-area: 1 / 2; }
   .ig-mega--sidebar .ig-mega__links a,
   .ig-mega--sidebar .ig-mega__group-title a { overflow-wrap: anywhere; }
