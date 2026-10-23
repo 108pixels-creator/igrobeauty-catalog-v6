@@ -994,7 +994,7 @@ ul { margin: 0; padding: 0; list-style: none; }
   color: var(--text-default);
   font-variant-numeric: tabular-nums;
 }
-.ig-card__qty:has(.ig-card__qty-in:focus) { border-color: var(--border-focus); }   /* только при вводе числа, не при − и + (23.10) */
+.ig-card__qty:has(.ig-card__qty-in:focus) { border-color: var(--border-focus); background: var(--surface-card); }   /* только при вводе числа, не при − и +: зелёная рамка и белый фон (23.10) */
 /* нет в наличии — плашка Error tint, крестик красный 16 px, текст приглушённый Source Sans 14 semibold (23.10; было 16 и крестик 20 – под 6 карточек в ряд) */
 .ig-card__nostock {
   flex: 1;
