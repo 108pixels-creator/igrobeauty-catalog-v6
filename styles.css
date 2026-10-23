@@ -734,10 +734,10 @@ ul { margin: 0; padding: 0; list-style: none; }
   padding: var(--space-2) 9px var(--space-2);
   border-radius: var(--radius-panel);
   background: var(--surface-card);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+  box-shadow: 1px 2px 4px rgba(0, 0, 0, 0.15);   /* 23.10: размытие +2, сдвиг вниз и вправо +1 */
 }
 /* слои под карточкой – по макету (узлы 2740:3618, 2740:3616): фон #F6F6F6, та же тень,
-   средний сдвинут на 6/−4 px с углами 10 px, задний – на 12/−8 px с углами 12 px */
+   средний сдвинут на 6/4 px (вправо и вниз, 23.10) с углами 10 px, задний – на 12/8 px с углами 12 px */
 .ig-card--stack::before,
 .ig-card--stack::after {
   content: "";
@@ -745,12 +745,12 @@ ul { margin: 0; padding: 0; list-style: none; }
   inset: 0;
   z-index: -1;
   background: var(--surface-card);        /* белые – выделяются на сером фоне (23.10; в макете #F6F6F6) */
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+  box-shadow: 1px 2px 4px rgba(0, 0, 0, 0.15);   /* 23.10: размытие +2, сдвиг вниз и вправо +1 */
   pointer-events: none;
 }
 /* порядок рисования: ::before – задний слой, ::after – средний (ложится поверх заднего) */
-.ig-card--stack::before { transform: translate(12px, -8px); border-radius: 12px; }
-.ig-card--stack::after { transform: translate(6px, -4px); border-radius: 10px; }
+.ig-card--stack::before { transform: translate(12px, 8px); border-radius: 12px; }
+.ig-card--stack::after { transform: translate(6px, 4px); border-radius: 10px; }
 .ig-card__media {
   position: relative;
   overflow: hidden;
