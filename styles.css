@@ -1603,3 +1603,16 @@ ul { margin: 0; padding: 0; list-style: none; }
 .ig-card__buy.is-open .ig-card__buyicon .ig-card__buyicon-add { opacity: 1; transition-delay: var(--buy-fast); }
 .ig-card__buy .ig-card__buyicon svg.ig-card__buyicon-add,
 .ig-card__buy.is-open .ig-card__buyicon svg.ig-card__buyicon-add { width: 21.16px; height: 21.84px; }   /* размер из макета – сильнее общего правила иконок 18/20 px */
+
+/* матовое стекло (frost glass, 23.10): полупрозрачный фон и размытие того, что под ним –
+   у закреплённой панели фильтров (поверх товаров) и у уведомлений */
+.ig-toolbar__panel.is-stuck {
+  background: color-mix(in srgb, var(--surface-page) 72%, transparent);
+  -webkit-backdrop-filter: blur(16px) saturate(1.4);
+  backdrop-filter: blur(16px) saturate(1.4);
+}
+.igro-toast-region .igro-toast {
+  background: color-mix(in srgb, var(--surface-card) 72%, transparent);
+  -webkit-backdrop-filter: blur(16px) saturate(1.4);
+  backdrop-filter: blur(16px) saturate(1.4);
+}
