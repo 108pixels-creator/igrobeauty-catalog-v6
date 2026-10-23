@@ -749,8 +749,10 @@ ul { margin: 0; padding: 0; list-style: none; }
   pointer-events: none;
 }
 /* порядок рисования: ::before – задний слой, ::after – средний (ложится поверх заднего) */
-.ig-card--stack::before { transform: translate(12px, 8px); border-radius: 12px; }
-.ig-card--stack::after { transform: translate(6px, 4px); border-radius: 10px; }
+/* 23.10: сдвиг каждого следующего слоя на 1 px меньше (5/4 и 10/8 px); скругление растёт на величину сдвига вниз –
+   углы концентрические: карточка 12, средний 16, задний 20 px */
+.ig-card--stack::before { transform: translate(10px, 8px); border-radius: calc(var(--radius-panel) + 8px); }
+.ig-card--stack::after { transform: translate(5px, 4px); border-radius: calc(var(--radius-panel) + 4px); }
 .ig-card__media {
   position: relative;
   overflow: hidden;
