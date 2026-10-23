@@ -537,7 +537,8 @@
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { filtersBtnW = 0; fixFiltersBtn(); });
   function renderToolbar() {
     /* счётчик у сортировки – сколько всего товаров в разделе; от выбранных фильтров не зависит (решение 20.10.2026) */
-    var total = scope.length;
+    /* v6-lab, 23.10: число у сортировки – сколько товаров после фильтров (в v6 – всего в разделе) */
+    var total = filtered(sel).length;
     var n = panelSelected(sel);
     /* «Фильтры» — Button sm: ghost, а когда в панели что-то выбрано — dark */
     var left = '<button type="button" class="igro-btn igro-btn--sm ' + (n ? 'igro-btn--dark' : 'igro-btn--ghost') + ' ig-filters-btn" data-open="filters" aria-haspopup="dialog">' +
@@ -898,7 +899,7 @@
   function toast(title, msg) {
     if (!toastList) {
       var region = document.createElement('div');
-      region.className = 'igro-toast-region';
+      region.className = 'igro-toast-region igro-toast-region--top';   /* правый верхний угол (23.10) */
       region.innerHTML = '<ol class="igro-toast-region__list" aria-live="polite"></ol>';
       document.body.appendChild(region);
       toastList = region.firstChild;

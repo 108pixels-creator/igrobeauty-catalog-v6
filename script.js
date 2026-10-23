@@ -412,6 +412,10 @@
       }
       lastY = y;
       placeTb();
+      /* уведомления — под шапкой и закреплённой панелью фильтров */
+      var tt = isCompact() ? mastBottom() : Math.max(0, mastSlot.getBoundingClientRect().top) + fullH - fullOffset;
+      if (tbPanel && tbStuck && !tbPanel.classList.contains('is-hidden')) tt = Math.max(tt, tbTop() + tbPanel.offsetHeight);
+      docEl.style.setProperty('--toast-top', Math.round(Math.max(0, tt) + 12) + 'px');
     };
     window.addEventListener('scroll', function () {
       if (!mastTick) { mastTick = true; requestAnimationFrame(onMastScroll); }

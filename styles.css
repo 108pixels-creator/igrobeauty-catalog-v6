@@ -311,7 +311,7 @@ ul { margin: 0; padding: 0; list-style: none; }
 .ig-mega__cols[hidden] { display: none !important; }
 .ig-mega__cols > div { flex: 1 1 0; min-width: 0; }
 .ig-mega__group-title {
-  margin: 0 0 var(--space-2);
+  margin: 0;
   font-family: var(--font-heading);
   font-weight: var(--weight-bold);
   font-size: var(--font-size-h5);
@@ -320,8 +320,11 @@ ul { margin: 0; padding: 0; list-style: none; }
 }
 .ig-mega__group-title a { color: inherit; }
 .ig-mega__group + .ig-mega__group { margin-top: var(--space-5); }
-.ig-mega__links li { margin-bottom: var(--space-2); }
-.ig-mega__links a { display: inline-block; color: var(--text-default); font-size: var(--font-size-body-sm); line-height: 1.3; }
+/* без пустых промежутков между пунктами: ссылка – на всю ширину колонки, расстояние между пунктами – её поля
+   (наведение не «проваливается» между пунктами, 23.10); заголовок группы – с полями 4 px сверху и снизу */
+.ig-mega__links li { margin-bottom: 0; }
+.ig-mega__links a { display: block; padding-block: calc(var(--space-2) / 2); color: var(--text-default); font-size: var(--font-size-body-sm); line-height: 1.3; }
+.ig-mega__group-title a { display: inline-block; padding-block: var(--space-1); }
 /* при наведении ссылки зеленеют; у подразделов (заголовки колонок) ещё и прорисовывается линия слева направо –
    вдвое быстрее, чем было до 19.10 (половина --duration-base, 0,15 с). У под-подразделов (списки) линии нет */
 .ig-mega__group-title a,
@@ -329,7 +332,7 @@ ul { margin: 0; padding: 0; list-style: none; }
 .ig-mega__group-title a::after {
   content: "";
   position: absolute;
-  left: 0; right: 0; bottom: -2px;
+  left: 0; right: 0; bottom: 2px;          /* под текстом: поле ссылки 4 px – линия на 2 px ниже текста, как раньше */
   height: 1px;
   background: currentColor;
   transform: scaleX(0);
@@ -663,9 +666,9 @@ ul { margin: 0; padding: 0; list-style: none; }
 .ig-qf__label {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
-  width: calc(var(--qf-label-w, 132px) + 0.1em);
-  text-align: right;
+  justify-content: center;
+  width: var(--qf-label-w, 132px);          /* = ширина кнопки «Фильтры»: подпись по её центру (23.10) */
+  text-align: center;
   min-height: var(--size-control-sm);
   font-size: var(--font-size-micro);
   font-weight: var(--weight-semibold);
@@ -741,7 +744,7 @@ ul { margin: 0; padding: 0; list-style: none; }
   position: absolute;
   inset: 0;
   z-index: -1;
-  background: #f6f6f6;
+  background: var(--surface-card);        /* белые – выделяются на сером фоне (23.10; в макете #F6F6F6) */
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
   pointer-events: none;
 }
@@ -762,7 +765,8 @@ ul { margin: 0; padding: 0; list-style: none; }
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  background: rgba(72, 80, 85, 0.05);
+  background: var(--surface-page);       /* умножение на цвет страницы: белый фон снимка = фон страницы, без перепада (23.10) */
+  mix-blend-mode: multiply;
   pointer-events: none;
 }
 .ig-card__media:not(.ig-card__media--img) { background: var(--surface-sunken); }
@@ -950,7 +954,7 @@ ul { margin: 0; padding: 0; list-style: none; }
   color: var(--text-default);
   font-variant-numeric: tabular-nums;
 }
-.ig-card__qty:focus-within { border-color: var(--border-focus); }
+.ig-card__qty:has(.ig-card__qty-in:focus) { border-color: var(--border-focus); }   /* только при вводе числа, не при − и + (23.10) */
 /* нет в наличии — плашка Error tint, крестик красный, текст приглушённый Source Sans 16 semibold */
 .ig-card__nostock {
   flex: 1;
@@ -1553,3 +1557,24 @@ ul { margin: 0; padding: 0; list-style: none; }
 .ig-filters-btn { justify-content: center; }
 /* полная шапка после компактной встаёт сразу в своём виде, без перестройки (переходы отключены на кадр) */
 .ig-mast.no-anim, .ig-mast.no-anim * { transition: none !important; animation: none !important; }
+
+/* уведомления – в правом верхнем углу, под шапкой и закреплённой панелью фильтров (--toast-top ставит script.js) (23.10) */
+.igro-toast-region--top { top: var(--toast-top, var(--space-4)); transition: top var(--duration-fast) ease; }
+
+/* «Каталог»: левый край иконки – по одной линии с логотипом (поле пункта вынесено за край строки) (23.10) */
+.ig-mast .ig-mainnav__list:first-child .ig-navlink { margin-left: calc(-1 * var(--space-4)); }
+@media (max-width: 1279px) {
+  .ig-mast .ig-mainnav__list:first-child .ig-navlink { margin-left: calc(-1 * var(--space-3)); }
+}
+
+/* квадратный логотип меньше: знак 52 px, «ИГРО» 16 px; низ слова – по нижнему краю поля поиска (23.10).
+   Логотип выше поля поиска; строка шапки выровнена по нижнему краю */
+@media (min-width: 768px) {
+  .ig-mast .ig-logo__svg { width: 52px; }
+  .ig-mast .ig-logo__word { font-size: 16px; }
+  .ig-mast .ig-logo__mark { gap: 5px; }
+  /* полная шапка: строка выровнена по нижнему краю – низ слова «ИГРО» на линии низа поля поиска и иконок
+     (у слова со строкой высотой 1 под буквами ~2,5 px – их компенсирует отрицательное поле) */
+  .ig-mast:not(.is-compact) .ig-header__inner { align-items: flex-end; }
+  .ig-mast:not(.is-compact) .ig-logo { margin-bottom: -2.5px; }
+}
