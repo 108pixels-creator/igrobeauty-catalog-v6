@@ -738,7 +738,7 @@ ul { margin: 0; padding: 0; list-style: none; }
 /* от строки «Тип продукта» до карточек – втрое больше прежних 24 px (поле панели 24 + 48 сверху, просьба 21.10);
    поле добавлено сетке, а не панели фильтров, чтобы закреплённая под шапкой панель не стала выше */
 .ig-content { padding-top: calc(2 * var(--space-4)); padding-bottom: var(--space-9); }
-.ig-grid { display: grid; grid-template-columns: repeat(5, 1fr); column-gap: 42px; row-gap: 38px; isolation: isolate; } /* слои стопки (z-index: −1) – над соседними блоками, под своей карточкой */
+.ig-grid { display: grid; grid-template-columns: repeat(6, 1fr); column-gap: 42px; row-gap: 38px; isolation: isolate; } /* слои стопки (z-index: −1) – над соседними блоками, под своей карточкой */
 .ig-card {
   position: relative;
   display: flex;
@@ -850,14 +850,14 @@ ul { margin: 0; padding: 0; list-style: none; }
 .ig-card__brandrow.is-wrapped .ig-card__line::before { content: none; }
 /* линия — зелёная, подчёркнута пунктиром; есть не у всех товаров, поэтому название и цена смещаются под неё */
 .ig-card__line { color: var(--text-link); text-decoration: underline dotted; text-underline-offset: 2px; }
-/* название — Montserrat 600 16/20,8, по центру, до трёх строк */
+/* название — Montserrat 600 14/18,2 (23.10; было 16/20,8 – под 6 карточек в ряд), по центру, до трёх строк */
 .ig-card__name {
   margin-top: 9px;
-  padding-inline: 10px;
+  padding-inline: 4px;
   font-family: var(--font-heading);
-  font-size: var(--font-size-body);
+  font-size: var(--font-size-body-sm);
   font-weight: var(--weight-semibold);
-  line-height: 20.8px;
+  line-height: 18.2px;
   letter-spacing: -0.16px;
   color: var(--text-default);
   overflow-wrap: break-word;
@@ -1259,6 +1259,12 @@ ul { margin: 0; padding: 0; list-style: none; }
 /* ==========================================================================
    АДАПТИВ — планшет (до 1280) и телефон (до 768); промежуточные точки — под содержимое
    ========================================================================== */
+/* 6 карточек в ряд (23.10): на узком десктопе (1280–1439) промежуток между колонками 32 px и половины цены ближе –
+   колонка ~173 px, цена «1 999 ₽ | Узнать проф. цену» помещается в ширину фото */
+@media (min-width: 1280px) and (max-width: 1439px) {
+  .ig-grid { column-gap: 32px; }
+  .ig-card__price { gap: 12px; }
+}
 @media (max-width: 1279px) {
   .ig-container { padding-inline: var(--gutter-md); }
   .ig-cathero { --cb-gutter: var(--gutter-md); }
