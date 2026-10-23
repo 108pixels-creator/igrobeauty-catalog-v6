@@ -412,15 +412,18 @@
       }
       lastY = y;
       placeTb();
-      /* уведомления — под шапкой и закреплённой панелью фильтров */
-      var tt = isCompact() ? mastBottom() : Math.max(0, mastSlot.getBoundingClientRect().top) + fullH - fullOffset;
-      if (tbPanel && tbStuck && !tbPanel.classList.contains('is-hidden')) tt = Math.max(tt, tbTop() + tbPanel.offsetHeight);
-      docEl.style.setProperty('--toast-top', Math.round(Math.max(0, tt) + 12) + 'px');
     };
     window.addEventListener('scroll', function () {
       if (!mastTick) { mastTick = true; requestAnimationFrame(onMastScroll); }
     }, { passive: true });
-    window.addEventListener('resize', function () { setMastH(); placeTb(); });
+    /* уведомления встают левее корзины в шапке (не закрывают число товаров и сумму) */
+    var placeToasts = function () {
+      var cartBtn = mast.querySelector('[data-cart]');
+      if (cartBtn) docEl.style.setProperty('--toast-right', Math.round(window.innerWidth - cartBtn.getBoundingClientRect().left + 12) + 'px');
+    };
+    window.addEventListener('resize', function () { setMastH(); placeTb(); placeToasts(); });
+    window.addEventListener('load', placeToasts);
+    placeToasts();
     window.addEventListener('load', setMastH);
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(setMastH);
     setMastH();
