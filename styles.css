@@ -787,10 +787,15 @@ ul { margin: 0; padding: 0; list-style: none; }
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  background: var(--surface-page);       /* умножение на цвет страницы: белый фон снимка = фон страницы, без перепада (23.10) */
+  /* круговой градиент (23.10, вариант 2): в центре белый – снимок как есть, к краям плашки равномерно переходит
+     в цвет страницы. С «умножением» белый фон снимка в центре остаётся белым – как подсветка под товаром, у краёв
+     становится ровно цветом страницы, без перепада. closest-side: цвет страницы – уже на серединах сторон, углы тоже */
+  background: radial-gradient(closest-side, #fff 0%, var(--surface-page) 100%);
   mix-blend-mode: multiply;
   pointer-events: none;
 }
+/* прежний вариант – ровное умножение на цвет страницы: ?shade=flat */
+.ig-shade-flat .ig-card:not(.ig-card--stack) .ig-card__media::after { background: var(--surface-page); }
 .ig-card__media:not(.ig-card__media--img) { background: var(--surface-sunken); }
 .ig-card__img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; transition: transform var(--duration-base) var(--ease-standard); }
 

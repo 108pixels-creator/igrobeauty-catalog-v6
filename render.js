@@ -103,6 +103,8 @@
   var params = new URLSearchParams(location.search);
   /* карточка каталога — продукт; ?cards=sku показывает прежнюю логику «карточка на каждый артикул» */
   var MODE = params.get('cards') === 'sku' ? 'sku' : 'product';
+  /* затемнение фото: по умолчанию круговой градиент, ?shade=flat – прежнее ровное (сравнение, 23.10) */
+  if (params.get('shade') === 'flat') document.body.classList.add('ig-shade-flat');
   function link(href) {
     if (!href) return '#';
     if (MODE !== 'sku') return href;
