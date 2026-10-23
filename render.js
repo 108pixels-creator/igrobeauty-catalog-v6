@@ -658,9 +658,9 @@
       '</div>' +
       (badge ? '<span class="ig-card__badge">' + esc(badge) + '</span>'
         : '<button type="button" class="ig-card__fav" data-fav aria-pressed="' + faved + '" aria-label="В избранное: ' + esc(p.n) + '">' + SVG.heart + '</button>') +
-      /* бренд и линия — кнопки: включают фильтр по бренду или по линии на текущей странице */
-      '<button type="button" class="ig-card__brand" data-card-brand="' + esc(p.g) + '" title="Все товары бренда в разделе">' + esc(p.g) + '</button>' +
-      (p.l ? '<button type="button" class="ig-card__line" data-card-line="' + esc(lineKey(p)) + '" data-card-line-brand="' + esc(p.g) + '" title="Все товары линии «' + esc(p.l) + '» в разделе">' + esc(p.l) + '</button>' : '') +
+      /* бренд и линия — кнопки-фильтры; в одной строке через «·», не помещаются — линия на новой строке без точки */
+      '<div class="ig-card__brandrow"><button type="button" class="ig-card__brand" data-card-brand="' + esc(p.g) + '" title="Все товары бренда в разделе">' + esc(p.g) + '</button>' +
+      (p.l ? '<button type="button" class="ig-card__line" data-card-line="' + esc(lineKey(p)) + '" data-card-line-brand="' + esc(p.g) + '" title="Все товары линии «' + esc(p.l) + '» в разделе">' + esc(p.l) + '</button>' : '') + '</div>' +
       '<div class="ig-card__name" title="' + esc(p.n) + '"><a class="ig-card__link" href="#" data-product>' + soft(p.n) + '</a></div>' +
       (p.desc ? '<div class="ig-card__desc">' + esc(p.desc) + '</div>' : '') +
       /* цена: слева цена и «Розничная цена» (вправо), справа «Узнать проф. цену» (влево) — макет 2740:3615 */
@@ -713,14 +713,13 @@
   }
   /* строка «бренд · серия» занимает одну или две строки — в ряду карточек высота выравнивается по самой высокой,
      чтобы названия стояли на одной линии */
+  /* бренд и линия в одной строке через «·»; если линия ушла на новую строку — без точки и на всю ширину
+     (is-wrapped). Перенос виден только после раскладки — проверяется после отрисовки, при смене ширины, после шрифтов */
   function alignBrandlines() {
-    var lines = Array.prototype.slice.call(document.querySelectorAll('.ig-card__brandline'));
-    lines.forEach(function (l) { l.style.minHeight = ''; });
-    var rows = {};
-    lines.forEach(function (l) { var top = l.closest('.ig-card').offsetTop; (rows[top] = rows[top] || []).push(l); });
-    Object.keys(rows).forEach(function (top) {
-      var max = Math.max.apply(null, rows[top].map(function (l) { return l.offsetHeight; }));
-      rows[top].forEach(function (l) { if (l.offsetHeight < max) l.style.minHeight = max + 'px'; });
+    document.querySelectorAll('.ig-card__brandrow').forEach(function (row) {
+      var line = row.querySelector('.ig-card__line');
+      row.classList.remove('is-wrapped');
+      if (line && line.offsetTop > row.firstElementChild.offsetTop + 2) row.classList.add('is-wrapped');
     });
   }
   var alignQueued = false;
