@@ -103,8 +103,9 @@
   var params = new URLSearchParams(location.search);
   /* карточка каталога — продукт; ?cards=sku показывает прежнюю логику «карточка на каждый артикул» */
   var MODE = params.get('cards') === 'sku' ? 'sku' : 'product';
-  /* затемнение фото: по умолчанию круговой градиент, ?shade=flat – прежнее ровное (сравнение, 23.10) */
-  if (params.get('shade') === 'flat') document.body.classList.add('ig-shade-flat');
+  /* затемнение фото: по умолчанию круговой градиент с белым кругом до половины радиуса;
+     ?shade=soft – градиент от самого центра, ?shade=flat – прежнее ровное (сравнение, 23.10) */
+  if (/^(soft|flat)$/.test(params.get('shade') || '')) document.body.classList.add('ig-shade-' + params.get('shade'));
   function link(href) {
     if (!href) return '#';
     if (MODE !== 'sku') return href;
