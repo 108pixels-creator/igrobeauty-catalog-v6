@@ -387,7 +387,7 @@
             return '<div>' + col.map(function (g) {
               return '<div class="ig-mega__group"><h3 class="ig-mega__group-title"><a href="' + link(g.href) + '">' + esc(g.title) + '</a></h3>' +
                 (g.links.length ? '<ul class="ig-mega__links">' +
-                  g.links.map(function (l) { return '<li><a href="' + link(l.href) + '">' + esc(l.t) + '</a></li>'; }).join('') + '</ul>' : '') +
+                  g.links.map(function (l) { return '<li><a href="' + link(l.href) + '"><span>' + esc(l.t) + '</span></a></li>'; }).join('') + '</ul>' : '') +
                 '</div>';
             }).join('') + '</div>';
           }).join('') + '</div>';
@@ -897,7 +897,8 @@
       toast('Сообщим о поступлении', 'Письмо придёт на ' + inp.value.trim() + ', когда «' + name + '» появится в наличии. В прототипе письма не отправляются.');
     });
   }
-  function toast(title, msg) {
+  /* img – превью товара слева (добавление в корзину, 23.10) */
+  function toast(title, msg, img) {
     if (!toastList) {
       var region = document.createElement('div');
       region.className = 'igro-toast-region igro-toast-region--top';   /* правый верхний угол (23.10) */
@@ -907,7 +908,9 @@
     }
     var li = document.createElement('li');
     li.className = 'igro-toast-region__item';
-    li.innerHTML = '<div class="igro-toast"><div class="igro-toast__body">' +
+    li.innerHTML = '<div class="igro-toast">' +
+      (img ? '<img class="igro-toast__thumb" src="' + esc(img) + '" alt="" decoding="async" referrerpolicy="no-referrer">' : '') +
+      '<div class="igro-toast__body">' +
       '<div class="igro-toast__title">' + esc(title) + '</div><div class="igro-toast__message">' + esc(msg) + '</div></div>' +
       '<button type="button" class="igro-toast__close" aria-label="Закрыть">' + ic('close', 18) + '</button></div>';
     toastList.appendChild(li);
@@ -1073,6 +1076,7 @@
     /* ---- новая карточка (эксперимент design-lab, макет 2740:3615) ---- */
     var cardEl = t.closest('.ig-card');
     var cardName = function () { var a = cardEl && cardEl.querySelector('.ig-card__link'); return a ? a.textContent : ''; };
+    var cardImg = function () { var im = cardEl && cardEl.querySelector('.ig-card__img'); return im ? im.getAttribute('src') : ''; };
     var cardUnit = function () { var v = cardEl && cardEl.querySelector('[data-unit]'); return v ? parseInt(v.getAttribute('data-unit'), 10) || 0 : 0; };
     /* избранное: нажатие заливает сердце */
     var favBtn = t.closest('[data-fav]');
@@ -1093,14 +1097,14 @@
       var key = cardEl.getAttribute('data-key');
       if (!buy.classList.contains('is-open')) {
         var total = window.IG_CART.add(key, 1, cardUnit());
-        toast('Товар в корзине', '«' + cardName() + '» – 1 шт.' + (total > 1 ? ' Всего этого товара в корзине: ' + total + ' шт.' : ''));
+        toast('Товар в корзине', '«' + cardName() + '» – 1 шт.' + (total > 1 ? ' Всего этого товара в корзине: ' + total + ' шт.' : ''), cardImg());
         setBuy(buy, true);
       } else {
         var qin = buy.querySelector('.ig-card__qty-in');
         var q = Math.max(1, Math.min(999, parseInt(qin.value, 10) || 1));
         qin.value = q;
         var tot = window.IG_CART.add(key, q, cardUnit());
-        toast('Добавлено в корзину', '«' + cardName() + '» – ' + q + ' шт. Всего этого товара в корзине: ' + tot + ' шт.');
+        toast('Добавлено в корзину', '«' + cardName() + '» – ' + q + ' шт. Всего этого товара в корзине: ' + tot + ' шт.', cardImg());
         bump(buyBtn.querySelector('.ig-card__buyicon'));
       }
       return;

@@ -332,8 +332,8 @@ ul { margin: 0; padding: 0; list-style: none; }
 .ig-mega__group-title a::after {
   content: "";
   position: absolute;
-  left: 0; right: 0; bottom: 2px;          /* под текстом: поле ссылки 4 px – линия на 2 px ниже текста, как раньше */
-  height: 1px;
+  left: 0; right: 0; bottom: 1px;          /* под текстом: верх линии там же, где был у линии 1 px */
+  height: 2px;                             /* 2 px (23.10; было 1 px) */
   background: currentColor;
   transform: scaleX(0);
   transform-origin: left center;
@@ -346,6 +346,24 @@ ul { margin: 0; padding: 0; list-style: none; }
   .ig-mega__group-title a:hover,
   .ig-mega__links a:hover { color: var(--text-link); }
   .ig-mega__group-title a:hover::after { transform: scaleX(1); }
+}
+/* под-подразделы: при наведении текст сдвигается вправо на 8 px, слева проявляется квадратик 4 px цвета ссылки (23.10).
+   Сдвигается только текст (span) – сама ссылка на месте, наведение не срывается у левого края */
+.ig-mega__links a span { display: inline-block; transition: transform var(--duration-fast) var(--ease-standard); }
+.ig-mega__links a::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: calc(var(--space-2) / 2 + 0.65em - 2px);   /* по центру первой строки текста */
+  width: 4px; height: 4px;
+  background: currentColor;
+  opacity: 0;
+  transform: scale(0);
+  transition: opacity var(--duration-fast) ease, transform var(--duration-fast) var(--ease-standard);
+}
+@media (hover: hover) {
+  .ig-mega__links a:hover span { transform: translateX(8px); }
+  .ig-mega__links a:hover::before { opacity: 1; transform: scale(1); }
 }
 /* разделы — вертикальными вкладками слева */
 @media (min-width: 901px) {
@@ -1628,4 +1646,13 @@ ul { margin: 0; padding: 0; list-style: none; }
   background: color-mix(in srgb, var(--surface-card) 72%, transparent);
   -webkit-backdrop-filter: blur(16px) saturate(1.4);
   backdrop-filter: blur(16px) saturate(1.4);
+}
+
+/* уведомление о добавлении в корзину – с превью товара слева: 56 px, белая подложка (фото на белом фоне) (23.10) */
+.igro-toast__thumb {
+  flex: none;
+  width: 56px; height: 56px;
+  object-fit: contain;
+  background: #fff;
+  border-radius: var(--radius-field);
 }
