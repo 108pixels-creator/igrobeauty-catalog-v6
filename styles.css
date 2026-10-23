@@ -1607,6 +1607,7 @@ ul { margin: 0; padding: 0; list-style: none; }
 /* матовое стекло (frost glass, 23.10): полупрозрачный фон и размытие того, что под ним –
    у закреплённой панели фильтров (поверх товаров) и у уведомлений */
 .ig-toolbar__panel.is-stuck {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);   /* тень под панелью – на 2 px ниже линии (23.10) */
   background: color-mix(in srgb, var(--surface-page) 72%, transparent);
   -webkit-backdrop-filter: blur(16px) saturate(1.4);
   backdrop-filter: blur(16px) saturate(1.4);
