@@ -897,9 +897,6 @@
     });
   }
   function toast(title, msg) {
-    /* левее корзины в шапке – пересчёт при каждом показе: ширина суммы в корзине меняется */
-    var cartB = document.querySelector('[data-cart]');
-    if (cartB) document.documentElement.style.setProperty('--toast-right', Math.round(window.innerWidth - cartB.getBoundingClientRect().left + 12) + 'px');
     if (!toastList) {
       var region = document.createElement('div');
       region.className = 'igro-toast-region igro-toast-region--top';   /* правый верхний угол (23.10) */

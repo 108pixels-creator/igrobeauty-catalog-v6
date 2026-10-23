@@ -416,14 +416,7 @@
     window.addEventListener('scroll', function () {
       if (!mastTick) { mastTick = true; requestAnimationFrame(onMastScroll); }
     }, { passive: true });
-    /* уведомления встают левее корзины в шапке (не закрывают число товаров и сумму) */
-    var placeToasts = function () {
-      var cartBtn = mast.querySelector('[data-cart]');
-      if (cartBtn) docEl.style.setProperty('--toast-right', Math.round(window.innerWidth - cartBtn.getBoundingClientRect().left + 12) + 'px');
-    };
-    window.addEventListener('resize', function () { setMastH(); placeTb(); placeToasts(); });
-    window.addEventListener('load', placeToasts);
-    placeToasts();
+    window.addEventListener('resize', function () { setMastH(); placeTb(); });
     window.addEventListener('load', setMastH);
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(setMastH);
     setMastH();

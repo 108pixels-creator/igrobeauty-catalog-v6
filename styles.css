@@ -1562,11 +1562,10 @@ ul { margin: 0; padding: 0; list-style: none; }
 /* полная шапка после компактной встаёт сразу в своём виде, без перестройки (переходы отключены на кадр) */
 .ig-mast.no-anim, .ig-mast.no-anim * { transition: none !important; animation: none !important; }
 
-/* уведомления – у самого верха экрана (23.10); на десктопе узкие (320 px) и встают левее корзины в шапке,
-   чтобы не закрывать число товаров и сумму (--toast-right ставит script.js по положению корзины) */
-.igro-toast-region--top { top: 12px; }
+/* уведомления – в самом правом верхнем углу страницы, 12 px от краёв (23.10); на десктопе узкие – 320 px */
+.igro-toast-region--top { top: 12px; right: 12px; }
 @media (min-width: 1024px) {
-  .igro-toast-region--top { right: var(--toast-right, var(--space-4)); width: 320px; }
+  .igro-toast-region--top { width: 320px; }
 }
 
 /* «Каталог»: левый край иконки – по одной линии с логотипом (поле пункта вынесено за край строки) (23.10) */
