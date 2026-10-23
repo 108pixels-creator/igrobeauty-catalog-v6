@@ -1214,6 +1214,11 @@
       openProduct(cardEl.getAttribute('data-key'));
       return;
     }
+    /* продукт (стопка) раскрывается кликом по любому месту карточки, кроме её кнопок и ссылок */
+    if (cardEl && cardEl.classList.contains('ig-card--stack') && !t.closest('button, a, input')) {
+      openProduct(cardEl.getAttribute('data-key'));
+      return;
+    }
 
     /* страницы */
     var pg = t.closest('[data-page]');

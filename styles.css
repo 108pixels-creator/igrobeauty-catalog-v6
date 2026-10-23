@@ -906,6 +906,8 @@ ul { margin: 0; padding: 0; list-style: none; }
 
 /* действия прижаты к низу карточки */
 .ig-card__controls { padding-top: 31px; }
+/* высота кнопок карточки – «В корзину», «Выбрать», квадратные, счётчик, «нет в наличии»: 34 px (ДС sm) вместо 44 px (23.10) */
+.ig-card { --card-ctl: var(--size-control-sm); }
 /* кнопка — линейная белая: рамка и текст Uplift, 44 px, углы 4 px; при наведении — тёмная (House) */
 .ig-card__btn {
   display: flex;
@@ -913,11 +915,11 @@ ul { margin: 0; padding: 0; list-style: none; }
   justify-content: center;
   gap: 6px;
   width: 100%;
-  height: var(--size-control-md);
+  height: var(--card-ctl);
   padding: 0 var(--space-3);
-  border: 1px solid var(--action-cta);
+  border: 1px solid transparent;          /* 23.10: «Выбрать» – только текст, рамка проявляется при наведении */
   border-radius: var(--radius-control);
-  background: var(--surface-card);
+  background: transparent;
   color: var(--action-cta);
   font-family: var(--font-ui);
   font-size: var(--font-size-body-sm);
@@ -936,8 +938,8 @@ ul { margin: 0; padding: 0; list-style: none; }
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: var(--size-control-md);
-  height: var(--size-control-md);
+  width: var(--card-ctl);
+  height: var(--card-ctl);
   padding: 0;
   border: 1px solid var(--surface-inverse);
   border-radius: var(--radius-control);
@@ -946,8 +948,8 @@ ul { margin: 0; padding: 0; list-style: none; }
   cursor: pointer;
   transition: background var(--duration-fast) ease, border-color var(--duration-fast) ease, transform var(--duration-fast) ease;
 }
-.ig-card__sq svg { width: 20px; height: 20px; }
-.ig-card__sq--bell svg { width: 24px; height: 24px; }
+.ig-card__sq svg { width: 18px; height: 18px; }
+.ig-card__sq--bell svg { width: 20px; height: 20px; }   /* под кнопку 34 px (23.10; было 20 и 24) */
 .ig-card__sq:active { transform: scale(var(--press-scale-icon)); }
 /* счётчик: рамка Silver, кнопки − и + 44 px с зелёной рамкой, число можно ввести вручную */
 .ig-card__qty {
@@ -955,7 +957,7 @@ ul { margin: 0; padding: 0; list-style: none; }
   min-width: 0;
   display: flex;
   align-items: stretch;
-  height: var(--size-control-md);
+  height: var(--card-ctl);
   border: 1px solid var(--border-default);
   border-radius: var(--radius-control);
 }
@@ -964,7 +966,7 @@ ul { margin: 0; padding: 0; list-style: none; }
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: var(--size-control-md);
+  width: var(--card-ctl);
   margin: -1px;
   padding: 0;
   border: 1px solid var(--action-cta);
@@ -1001,7 +1003,7 @@ ul { margin: 0; padding: 0; list-style: none; }
   align-items: center;
   justify-content: center;
   gap: 6px;
-  height: var(--size-control-md);
+  height: var(--card-ctl);
   border-radius: var(--radius-control);
   background: var(--status-error-tint);
   color: var(--text-muted);
@@ -1014,7 +1016,10 @@ ul { margin: 0; padding: 0; list-style: none; }
 .ig-card__nostock svg { width: 16px; height: 16px; flex: none; color: var(--status-error); }
 
 @media (hover: hover) {
-  .ig-card__media:hover .ig-card__img { transform: scale(1.06); }
+  /* увеличение фото – только у товара; у продукта (стопки) фото не реагирует – выделяется вся карточка */
+  .ig-card:not(.ig-card--stack) .ig-card__media:hover .ig-card__img { transform: scale(1.06); }
+  .ig-card--stack { cursor: pointer; transition: box-shadow var(--duration-fast) ease; }
+  .ig-card--stack:hover { box-shadow: 0 0 0 2px var(--action-cta), 1px 2px 4px rgba(0, 0, 0, 0.15); }
   .ig-card__link:hover { text-decoration: underline; }   /* 23.10: без перекраски в зелёный – только подчёркивание */
   .ig-card__brand:hover { color: var(--text-link); text-decoration: underline; text-underline-offset: 2px; }
   .ig-card__line:hover { text-decoration-style: solid; }
@@ -1024,7 +1029,7 @@ ul { margin: 0; padding: 0; list-style: none; }
   .ig-card__fav:hover { background: var(--surface-card); box-shadow: 0 1px 0.5px rgba(0, 0, 0, 0.24), 0 0 0.25px rgba(0, 0, 0, 0.14); }
   .ig-card__fav:hover { color: var(--text-default); }
   .ig-card__fav[aria-pressed="true"]:hover { color: var(--action-cta); }
-  .ig-card__btn:hover { background: var(--surface-inverse); border-color: var(--surface-inverse); color: var(--text-on-dark); }
+  .ig-card__btn:hover { border-color: var(--action-cta); }   /* 23.10: не тёмная – только рамка */
   .ig-card__sq:hover { background: var(--action-dark-hover); border-color: var(--action-dark-hover); }
   .ig-card__qty-btn:hover { background: var(--surface-inverse); border-color: var(--surface-inverse); color: var(--text-on-dark); }
 }
@@ -1033,7 +1038,7 @@ ul { margin: 0; padding: 0; list-style: none; }
    Раскрытие: кнопка сжимается (0,21 с) и темнеет, надпись гаснет и складывается; счётчик выезжает с задержкой 0,07 с.
    Сворачивание — наоборот: счётчик гаснет сразу, кнопка разворачивается с задержкой 0,056 с */
 /* на 30 % быстрее токенов ДС (просьба 21.10): 0,21 и 0,14 с; при «уменьшить движение» токены гасят и их */
-.ig-card__buy { --buy-base: calc(var(--duration-base) * 0.7); --buy-fast: calc(var(--duration-fast) * 0.7); position: relative; height: var(--size-control-md); }
+.ig-card__buy { --buy-base: calc(var(--duration-base) * 0.7); --buy-fast: calc(var(--duration-fast) * 0.7); position: relative; height: var(--card-ctl); }
 .ig-card__buybtn {
   position: absolute;
   top: 0;
@@ -1077,7 +1082,7 @@ ul { margin: 0; padding: 0; list-style: none; }
   position: absolute;
   top: 0;
   left: 0;
-  right: calc(var(--size-control-md) + var(--space-2));
+  right: calc(var(--card-ctl) + var(--space-2));
   opacity: 0;
   visibility: hidden;
   transform: translateX(16px) scale(0.96);
@@ -1086,7 +1091,7 @@ ul { margin: 0; padding: 0; list-style: none; }
 }
 /* раскрыт */
 .ig-card__buy.is-open .ig-card__buybtn {
-  width: var(--size-control-md);
+  width: var(--card-ctl);
   border-color: var(--surface-inverse);
   background: var(--surface-inverse);
   color: var(--text-on-dark);
