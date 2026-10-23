@@ -1552,6 +1552,8 @@ ul { margin: 0; padding: 0; list-style: none; }
 /* ссылки «Тип продукта» – без обёртки (иначе пропадает подчёркивание и сбивается базовая линия):
    ссылка – колонка, текст первой строкой, под ним невидимая полужирная копия нулевой высоты */
 .ig-tlink[data-t] { display: inline-flex; flex-direction: column; align-items: flex-start; }
+/* спрятанная обрезкой ссылка (атрибут hidden) должна скрываться – правило выше иначе перебивает hidden (баг 23.10: «ещё (19)» при всех видимых типах) */
+.ig-tlink[data-t][hidden] { display: none; }
 .ig-tlink[data-t]::after { content: attr(data-t); height: 0; overflow: hidden; visibility: hidden; font-weight: var(--weight-semibold); pointer-events: none; }
 .ig-btn__num { display: inline-block; min-width: 3ch; text-align: left; }
 .ig-btn__num.is-empty { display: none; }
