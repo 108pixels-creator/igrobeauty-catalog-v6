@@ -140,7 +140,7 @@
     if (MODE === 'sku') {
       p.v.forEach(function (s) {
         /* s[2] — собственная разметка артикула, если она отличается от разметки продукта */
-        cards.push({ key: 's' + s[0], i: i, d: p.d, g: p.g, l: p.l || '', n: p.n, y: p.y, a: p.a || [], img: p.img || '', x: s[2] || p.x, f: p.f, vc: p.vc, r: PRICE, multi: false, arts: [s[0]], desc: s[1] });
+        cards.push({ key: 's' + s[0], i: i, k: p.k, d: p.d, g: p.g, l: p.l || '', n: p.n, y: p.y, a: p.a || [], img: p.img || '', x: s[2] || p.x, f: p.f, vc: p.vc, r: PRICE, multi: false, arts: [s[0]], desc: s[1] });
       });
       return;
     }
@@ -148,11 +148,35 @@
        Вариант — артикул без префикса «МТ»: пара «с МТ и без» остаётся одним товаром.
        sh — число оттенков у красителей: в карточке пишется «N оттенков» вместо «N вариантов» */
     cards.push({
-      key: 'p' + p.k, i: i, d: p.d, g: p.g, l: p.l || '', n: p.n, y: p.y, a: p.a || [], img: p.img || '', x: p.x, f: p.f, vc: p.vc,
+      key: 'p' + p.k, i: i, k: p.k, d: p.d, g: p.g, l: p.l || '', n: p.n, y: p.y, a: p.a || [], img: p.img || '', x: p.x, f: p.f, vc: p.vc,
       r: PRICE, multi: p.vc > 1, sh: p.sh || 0,
       arts: p.v.map(function (s) { return s[0]; })
     });
   });
+
+  var cardByKey = Object.create(null);
+  cards.forEach(function (c) { cardByKey[c.key] = c; });
+
+  /* ---------- раскрытый продукт (23.10, design-lab) ----------
+     «Выбрать», картинка или название стопки раскрывают продукт: вместо его карточки в списке – карточки товаров
+     (вариантов), в чипах – фильтры бренда, линии и продукта. Продукт = бренд + линия + «Продукт» («Свод 22»,
+     документ «Продуктовая модель»). Пара артикулов «с МТ и без» – один товар; картинка – своя у артикула
+     (p.vi), если её нет – картинка продукта. Подпись товара – атрибуты, которыми варианты различаются, и объём */
+  var itemByK = Object.create(null);
+  D.items.forEach(function (p, i) { itemByK[p.k] = i; });
+  var variantCache = Object.create(null);
+  function variantsOf(k) {
+    if (variantCache[k]) return variantCache[k];
+    var i = itemByK[k], p = D.items[i], seen = Object.create(null), out = [];
+    if (p) p.v.forEach(function (s, j) {
+      var b = s[0].replace(/^МТ/, ''), img = (p.vi && p.vi[j]) || '';
+      if (seen[b]) { if (!seen[b].ownImg && img) { seen[b].img = img; seen[b].ownImg = true; } return; }
+      var c = { key: 's' + s[0], i: i, j: out.length, k: p.k, d: p.d, g: p.g, l: p.l || '', n: p.n, y: p.y, a: p.a || [],
+        img: img || p.img || '', ownImg: !!img, x: s[2] || p.x, f: p.f, vc: 1, r: PRICE, multi: false, arts: [s[0]], desc: s[1] };
+      seen[b] = c; out.push(c); cardByKey[c.key] = c;
+    });
+    return (variantCache[k] = out);
+  }
 
   /* ---------- корзина (имитация) ----------
      «В корзину» и счётчик в карточке меняют корзину, в шапке — кружок с числом товаров и сумма.
@@ -276,11 +300,13 @@
     if (k === 'l') return p.l ? [lineKey(p)] : [];
     if (k === 'c') { var c = brand(p.g).c; return c ? [c] : []; }
     if (k === 't') return techs(p);
+    if (k === 'p') return [p.k];
     return [];
   }
   /* l — линия: включается кликом по линии в карточке, в панели «Фильтры» её нет */
   function lineKey(p) { return p.g + ' · ' + p.l; }
-  var KEYS = ['g', 'c', 'y', 'a', 'l', 't'];
+  /* p — продукт (раскрытый кнопкой «Выбрать»): в чипах, в панели «Фильтры» его нет */
+  var KEYS = ['g', 'c', 'y', 'a', 'l', 't', 'p'];
   /* сквозные фильтры панели */
   var FACETS = [
     { k: 'g', title: 'Бренд', open: true },
@@ -351,7 +377,14 @@
     }
     return true;
   }
-  function filtered(s, skip) { return scope.filter(function (p) { return matches(p, s, skip); }); }
+  /* выбран продукт – список из его товаров (вариантов), иначе – карточки раздела */
+  function pool(s, skip) {
+    if (!s.p || !s.p.length || (skip && skip.p)) return scope;
+    var out = [];
+    s.p.forEach(function (k) { out = out.concat(variantsOf(k)); });
+    return out;
+  }
+  function filtered(s, skip) { return pool(s, skip).filter(function (p) { return matches(p, s, skip); }); }
   /* счётчик = сколько товаров останется, если выбрать это значение (свой фильтр не учитываем) */
   function countsFor(s, k) {
     var skip = {}; skip[k] = 1;
@@ -487,7 +520,7 @@
     var built = (D.meta.built || '').split('-').reverse().join('.');
     /* номер раздела по листу «Каталог map» — чтобы страницу было легко сверить со справочником */
     var LEVEL = { 1: 'категория', 2: 'подкатегория', 3: 'группа' };
-    var KIND = { set: ', собрана по полю «Тип продукта» = «Набор»', spf: ', собрана по полю «Уровень тона» = «SPF»' };
+    var KIND = { set: ', собрана по полю «Тип продукта» = «Набор»', spf: ', собрана по полю «Наличие SPF» = «SPF»' };
     proto.innerHTML = '<span>Прототип каталога ' + esc(VERSION) + ' · справочник «' + esc(D.meta.source.replace(/\.xlsx$/, '')) + '» · сборка ' + esc(built) +
       ' · раздел ' + esc(node.mid) + ', ' + LEVEL[node.level] + (KIND[node.kind] || '') + '</span>' +
       '<span class="ig-proto__mode">Карточки: ' +
@@ -513,8 +546,9 @@
     return '<button type="button" class="igro-tag igro-tag--interactive' + (medal ? ' ig-tag-hit' : '') + '" aria-pressed="' + (on ? 'true' : 'false') + '" data-facet="' + k + '" data-val="' + esc(v) + '">' +
       tw(v) + (medal ? MEDAL : '') + '</button>';
   }
-  function removableTag(k, v, label) {
-    return '<span class="igro-tag igro-tag--selected igro-tag--removable">' + esc(label) +
+  function removableTag(k, v, label, cls) {
+    return '<span class="igro-tag igro-tag--selected igro-tag--removable' + (cls ? ' ' + cls : '') + '"' + (cls ? ' title="' + esc(label) + '"' : '') + '>' +
+      (cls ? '<span class="' + cls + '__t">' + esc(label) + '</span>' : esc(label)) +
       '<button type="button" class="igro-tag__remove" data-facet="' + k + '" data-val="' + esc(v) + '" aria-label="Убрать фильтр: ' + esc(label) + '">' + ic('close', 16) + '</button></span>';
   }
   /* значения, которые при текущих фильтрах дают хотя бы один товар (выбранное остаётся всегда) */
@@ -563,6 +597,8 @@
     /* бренд без своего чипа (не ключевой) и линия, выбранные кликом в карточке, — чипами с крестиком (Tag ДС, removable) */
     sel.g.forEach(function (b) { if (keyBrands.indexOf(b) < 0) left += removableTag('g', b, b); });
     sel.l.forEach(function (v) { left += removableTag('l', v, 'Линия: ' + v.split(' · ').slice(1).join(' · ')); });
+    /* раскрытый продукт – чип с названием; длинное обрезается многоточием, целиком – во всплывающей подсказке */
+    sel.p.forEach(function (k) { var it = D.items[itemByK[k]]; if (it) left += removableTag('p', k, it.n, 'ig-tag-product'); });
 
     var sortLabel = SORTS.filter(function (s) { return s.k === state.sort; })[0].label;
     var right = '<span class="ig-count">' + goods(total) + '</span>' +
@@ -630,7 +666,7 @@
   /* «нет в наличии»: данных о наличии в справочнике нет. Чтобы состояние из макета было видно, в прототипе
      нет в наличии каждый 12-й товар с одним вариантом (демонстрация; ?stock=all — все в наличии) */
   var STOCK_DEMO = new URLSearchParams(location.search).get('stock') !== 'all';
-  function isOut(p) { return !!p.out || (STOCK_DEMO && !p.multi && p.i % 12 === 7); }
+  function isOut(p) { return !!p.out || (STOCK_DEMO && !p.multi && (p.j === undefined ? p.i : p.j) % 12 === 7); }
   /* «В корзину» и счётчик — один блок: кнопка не заменяется, а превращается (сжимается в квадрат справа,
      темнеет, надпись гаснет), на освободившемся месте проявляется счётчик. Счётчик вне открытого блока — inert */
   function buyHTML(name) {
@@ -956,6 +992,41 @@
     var y = toolbar.getBoundingClientRect().top + window.pageYOffset - (mastH || 12);
     window.scrollTo({ top: y, behavior: 'smooth' });
   }
+  /* адрес раскрытого продукта: ?product=<код> – «Назад» в браузере возвращает к списку, ссылкой можно поделиться */
+  var beforeProduct = null, productFrom = null;
+  function productUrl(k) {
+    var q = new URLSearchParams(location.search);
+    if (k) q.set('product', k); else q.delete('product');
+    var s = q.toString();
+    return location.pathname + (s ? '?' + s : '');
+  }
+  function selectProduct(c) {
+    sel.g = [c.g]; sel.l = c.l ? [lineKey(c)] : []; sel.p = [c.k];
+  }
+  function openProduct(key) {
+    var c = cardByKey[key];
+    if (!c || !c.multi) return;
+    beforeProduct = { sel: clone(sel), page: state.page };
+    productFrom = key;
+    selectProduct(c);
+    state.page = 1; renderAll();
+    history.pushState({ product: c.k }, '', productUrl(c.k));
+    scrollToGrid();
+  }
+  /* после закрытия продукта – к его карточке в списке, если она на этой странице */
+  function backToCard() {
+    var el = productFrom && document.querySelector('.ig-card[data-key="' + productFrom + '"]');
+    if (el) el.scrollIntoView({ block: 'center' }); else scrollToGrid();
+  }
+  window.addEventListener('popstate', function () {
+    var k = new URLSearchParams(location.search).get('product');
+    var c = k && cardByKey['p' + k];
+    if (c && inScope(c, sc)) { selectProduct(c); state.page = 1; renderAll(); scrollToGrid(); return; }
+    if (!sel.p.length) return;
+    if (beforeProduct) { sel = clone(beforeProduct.sel); state.page = beforeProduct.page; } else sel.p = [];
+    beforeProduct = null;
+    renderAll(); backToCard();
+  });
   function closeSortMenu() {
     document.querySelectorAll('.ig-sortmenu').forEach(function (m) { m.hidden = true; });
     document.querySelectorAll('[data-sortmenu]').forEach(function (b) { b.setAttribute('aria-expanded', 'false'); });
@@ -980,6 +1051,8 @@
     if (chip) {
       var ck = chip.getAttribute('data-facet'), cv = chip.getAttribute('data-val');
       toggle(sel[ck], cv); afterFilterChange();
+      /* крестик на чипе продукта: снимается только продукт, бренд и линия остаются */
+      if (ck === 'p') { history.replaceState(null, '', productUrl(sel.p[0])); beforeProduct = null; backToCard(); return; }
       refocus('.ig-toolbar [data-facet="' + ck + '"]', cv);
       return;
     }
@@ -1066,11 +1139,12 @@
       afterFilterChange(); scrollToGrid();
       return;
     }
-    /* картинка или название — переход в карточку товара; в прототипе её нет */
+    /* картинка или название — переход в карточку товара; в прототипе её нет. У стопки – раскрытие продукта */
     var prod = t.closest('[data-product]');
     if (prod) {
       e.preventDefault();
       var pc = prod.closest('.ig-card');
+      if (pc && pc.classList.contains('ig-card--stack')) { openProduct(pc.getAttribute('data-key')); return; }
       var pn = pc && pc.querySelector('.ig-card__name');
       toast('Карточка товара', 'Здесь откроется страница товара' + (pn ? ' «' + pn.textContent + '»' : '') + '. В прототипе её нет.');
       return;
@@ -1132,9 +1206,9 @@
       return;
     }
 
-    /* у продукта несколько вариантов — выбор в карточке товара */
-    if (t.closest('[data-variants]')) {
-      toast('Выбор варианта', 'Оттенок, объём или размер выбирают в карточке товара. В этот прототип она не входит.');
+    /* у продукта несколько вариантов — «Выбрать» раскрывает его товары */
+    if (t.closest('[data-variants]') && cardEl) {
+      openProduct(cardEl.getAttribute('data-key'));
       return;
     }
 
@@ -1188,6 +1262,12 @@
     }
   });
 
+  /* открыта ссылка на раскрытый продукт */
+  (function () {
+    var k = params.get('product'), c = k && cardByKey['p' + k];
+    if (c && c.multi && inScope(c, sc)) { selectProduct(c); history.replaceState({ product: k }, '', location.href); }
+    else if (k) history.replaceState(null, '', productUrl(''));
+  })();
   renderAll();
   renderCart();
 })();

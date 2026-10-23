@@ -770,7 +770,8 @@ ul { margin: 0; padding: 0; list-style: none; }
 /* порядок рисования: ::before – задний слой, ::after – средний (ложится поверх заднего) */
 /* 23.10: сдвиг каждого следующего слоя на 1 px меньше (5/4 и 10/8 px); скругление растёт на величину сдвига вниз –
    углы концентрические: карточка 12, средний 16, задний 20 px */
-.ig-card--stack::before { transform: translate(10px, 8px); border-radius: calc(var(--radius-panel) + 8px); }
+/* 23.10: заднего (третьего) слоя нет – под карточкой один слой */
+.ig-card--stack::before { content: none; }
 .ig-card--stack::after { transform: translate(5px, 4px); border-radius: calc(var(--radius-panel) + 4px); }
 .ig-card__media {
   position: relative;
@@ -1007,7 +1008,7 @@ ul { margin: 0; padding: 0; list-style: none; }
 
 @media (hover: hover) {
   .ig-card__media:hover .ig-card__img { transform: scale(1.06); }
-  .ig-card__link:hover { color: var(--text-link); text-decoration: underline; }
+  .ig-card__link:hover { text-decoration: underline; }   /* 23.10: без перекраски в зелёный – только подчёркивание */
   .ig-card__brand:hover { color: var(--text-link); text-decoration: underline; text-underline-offset: 2px; }
   .ig-card__line:hover { text-decoration-style: solid; }
   .ig-card__pro:hover { color: var(--action-cta); }
@@ -1662,4 +1663,11 @@ ul { margin: 0; padding: 0; list-style: none; }
   object-fit: contain;
   background: #fff;
   border-radius: var(--radius-field);
+}
+
+/* чип раскрытого продукта: название в одну строку, длинное – с многоточием (23.10) */
+.ig-tag-product { max-width: 100%; min-width: 0; }
+.ig-tag-product__t { display: inline-block; max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }
+@media (max-width: 767px) {
+  .ig-tag-product__t { max-width: 180px; }
 }
