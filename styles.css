@@ -1482,14 +1482,25 @@ ul { margin: 0; padding: 0; list-style: none; }
 .ig-mast .ig-logo__motto { color: var(--mast-fg); transition: color 0.15s var(--mast-ease); }
 .ig-mast .ig-logo__tagline { max-width: 240px; max-height: 80px; overflow: hidden; white-space: nowrap; transition: max-width var(--mast-dur) var(--mast-ease), max-height var(--mast-dur) var(--mast-ease), opacity 0.15s var(--mast-ease); }
 .ig-mast .igro-search {
-  background: var(--mast-field);
-  border-color: var(--mast-field-line);
-  transition: background var(--mast-dur) var(--mast-ease), border-color var(--mast-dur) var(--mast-ease), opacity 0.15s var(--mast-ease), visibility 0.15s var(--mast-ease);
+  /* 26.10 (только в лабе, в ДС такого поля нет): без рамки и заливки – линия 1 px снизу в цвет текста шапки,
+     слева иконка и подсказка; в фокусе – белое поле с фирменным зелёным контуром, как у поиска ДС */
+  padding-inline: var(--space-2);
+  border: 0;
+  border-radius: var(--radius-field) var(--radius-field) 0 0;
+  background: transparent;
+  box-shadow: inset 0 -1px 0 var(--mast-fg);
+  transition: background var(--mast-dur) var(--mast-ease), box-shadow 0.15s var(--mast-ease), border-radius 0.15s var(--mast-ease), opacity 0.15s var(--mast-ease), visibility 0.15s var(--mast-ease);
 }
-.ig-mast .igro-search__input { color: var(--mast-field-fg); }
+.ig-mast .igro-search__input { color: var(--mast-fg); }
 .ig-mast .igro-search__input::placeholder { color: currentColor; opacity: 0.7; }
-.ig-mast .igro-search__icon { color: var(--text-muted); }   /* поле поиска одинаковое на любом баннере — иконка серая */
-.ig-mast .igro-search:focus-within { background: var(--surface-card); border-color: var(--border-focus); box-shadow: var(--focus-field); }
+.ig-mast .igro-search__icon { color: var(--mast-fg); }
+.ig-mast .igro-search:focus-within {
+  background: var(--surface-card);
+  border-radius: var(--radius-field);
+  box-shadow: inset 0 0 0 1px var(--border-focus), var(--focus-field);
+}
+.ig-mast .igro-search:focus-within .igro-search__input { color: var(--text-default); }
+.ig-mast .igro-search:focus-within .igro-search__icon { color: var(--action-accent); }
 /* иконки и подписи — в цвет текста шапки, как у референса (в ДС ghost IconButton – серые) */
 .ig-mast .ig-actions .igro-icon-btn,
 .ig-mast .ig-action { color: var(--mast-fg); }
@@ -1528,15 +1539,17 @@ ul { margin: 0; padding: 0; list-style: none; }
 .ig-mast.is-collapsed .ig-mainnav { grid-template-rows: 0fr; }
 .ig-mast.is-collapsed .ig-mainnav__inner { opacity: 0; visibility: hidden; transition-delay: 0s; }
 .ig-mast.is-compact .ig-header__inner { padding-block: var(--space-2); }
-.ig-mast.is-compact .ig-logo { gap: 0; }
+.ig-mast.is-compact .ig-logo { gap: var(--space-3); }
 .ig-mast.is-compact .ig-logo__mark { flex-direction: row; gap: 8px; }
 .ig-mast.is-compact .ig-logo__svg { width: 33px; }
 .ig-mast.is-compact .ig-logo__word { font-size: 25px; }
-.ig-mast.is-compact .ig-logo__tagline { max-width: 0; max-height: 0; opacity: 0; }
-.ig-mast.is-compact .ig-search { opacity: 0; visibility: hidden; }
-.ig-mast.is-compact .ig-search-btn { display: inline-flex; }
-/* подпись «Вход / Регистрация» в сжатой шапке прячется, сумма корзины остаётся (просьба 21.10) */
-.ig-mast.is-compact .ig-action__label { max-width: 0; opacity: 0; }
+/* 26.10: в сжатой шапке справа от горизонтального логотипа – слоган «в отношениях надежны, в качестве постоянны!»
+   по левому краю, без «22 года с вами»; поиск, избранное, вход и корзина остаются на своих местах
+   (меняется только цвет – белая подложка); кнопка-лупа – только на телефоне, где поле поиска сворачивается */
+.ig-mast.is-compact .ig-logo__tagline { align-items: flex-start; text-align: left; }
+.ig-mast.is-compact .ig-logo__motto { font-size: var(--font-size-body-sm); }
+.ig-mast .ig-logo__years { max-height: 20px; overflow: hidden; transition: max-height var(--mast-dur) var(--mast-ease), opacity 0.15s var(--mast-ease); }
+.ig-mast.is-compact .ig-logo__years { max-height: 0; opacity: 0; }
 
 /* баннер начинается под плашкой со скидкой и уходит под шапку: сверху к нему добавлена высота шапки
    (--mast-h ставит script.js). Фоны «Волос» — высокие полосы assets/hero-tall/ (тот же кадр, выше на 192 px) */
@@ -1551,7 +1564,9 @@ ul { margin: 0; padding: 0; list-style: none; }
   .ig-mast .ig-header__inner { transition: padding var(--mast-dur) var(--mast-ease), row-gap var(--mast-dur) var(--mast-ease); }
   .ig-mast .ig-search { max-height: var(--size-control-md); overflow: hidden; transition: max-height var(--mast-dur) var(--mast-ease), opacity 0.15s var(--mast-ease), visibility 0.15s var(--mast-ease), background var(--mast-dur) var(--mast-ease); }
   .ig-mast.is-compact .ig-header__inner { row-gap: 0; }
-  .ig-mast.is-compact .ig-search { max-height: 0; border-width: 0; }
+  .ig-mast.is-compact .ig-search { max-height: 0; border-width: 0; opacity: 0; visibility: hidden; }
+  .ig-mast.is-compact .ig-search-btn { display: inline-flex; }
+  .ig-mast.is-compact .ig-logo__tagline { display: none; }
 }
 @media (prefers-reduced-motion: reduce) {
   .ig-mast { --mast-dur: 0.01s; }
@@ -1643,6 +1658,9 @@ ul { margin: 0; padding: 0; list-style: none; }
      (у слова со строкой высотой 1 под буквами ~2,5 px – их компенсирует отрицательное поле) */
   .ig-mast:not(.is-compact) .ig-header__inner { align-items: flex-end; }
   .ig-mast:not(.is-compact) .ig-logo { margin-bottom: -2.5px; }
+  /* 26.10: место под логотип одной ширины в полной и сжатой шапке (= сжатый логотип со слоганом, 288 px) –
+     поле поиска не сдвигается при переходе */
+  .ig-mast .ig-logo { min-width: 290px; }
 }
 
 /* иконка квадратной кнопки корзины – «корзина с плюсом» (Figma 2755:464): в раскрытом блоке обычная корзина
