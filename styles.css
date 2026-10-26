@@ -468,9 +468,11 @@ ul { margin: 0; padding: 0; list-style: none; }
   height: var(--dir-icon);
   margin-block: calc(var(--dir-icon) / -2);
   pointer-events: none;
-  /* 26.10: снизу иконка обрезана маской по нижней границе чипа (сам файл не тронут), сверху выступает как раньше.
-     Иконка по центру чипа высотой --size-control-lg – снизу срезается (иконка − чип) / 2 */
-  clip-path: inset(-100px -100px calc((var(--dir-icon) - var(--size-control-lg)) / 2) -100px);
+  /* 26.10: нижняя половина иконки обрезана маской по форме чипа – по нижней границе и по скруглению левого края
+     до середины чипа по высоте; верхняя половина выступает как раньше (файл иконки не тронут).
+     Координаты – в рамке иконки: чип 52 px, иконка по центру (выступ (96 − 52) / 2 = 22 px), левый край иконки
+     на 9 px правее края чипа (поле 8 + рамка 1). Скругление – полукруг радиусом 26 с центром (−9 + 26; 22 + 26) */
+  clip-path: path("M -300 -300 H 1300 V 74 H 17 A 26 26 0 0 1 -9 48 H -300 Z");
 }
 /* ряд прокручивается по горизонтали и обрезает всё, что выходит по вертикали, — даём иконкам место сверху и снизу */
 .ig-directions:has(.ig-direction--icon) { padding-block: 0; }
@@ -1350,6 +1352,7 @@ ul { margin: 0; padding: 0; list-style: none; }
 
   .ig-directions__arrow { display: none; }
   .ig-direction--icon { --dir-icon: 80px; }
+  .ig-direction__icon { clip-path: path("M -300 -300 H 1300 V 66 H 17 A 26 26 0 0 1 -9 40 H -300 Z"); }   /* иконка 80: выступ 14 */
 
   .ig-toolbar__right { width: 100%; justify-content: space-between; margin-left: 0; }
 
