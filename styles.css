@@ -1759,3 +1759,8 @@ ul { margin: 0; padding: 0; list-style: none; }
 /* открытый список – над соседними карточками: z-index только у самого списка (в контексте сетки). У карточки
    z-index не ставить – она станет своим контекстом наложения, и слой стопки (z-index: −1) ляжет поверх её рамки */
 .ig-card__pane[hidden] { display: none; }
+
+/* эксперимент 26.10: внутри продукта название (у всех товаров одно) – серое, того же размера; подпись, которая
+   отличает товары (оттенок, объём, размер), – тёмная полужирная */
+.ig-card--variant .ig-card__name { color: var(--text-muted); }
+.ig-card--variant .ig-card__desc { color: var(--text-default); font-weight: var(--weight-bold); }

@@ -774,7 +774,8 @@
           '<button type="button" class="ig-card__sq ig-card__sq--bell" data-notify aria-label="Сообщить о поступлении: ' + esc(p.n) + '">' + SVG.bell + '</button></div>'
         : buyHTML(p.n);
     var faved = !!fav[p.key];
-    return '<article class="ig-card' + (p.multi ? ' ig-card--stack' : '') + (opt ? ' ig-card--opts' : '') + '" data-key="' + esc(p.key) + '">' +
+    /* ig-card--variant – товар внутри раскрытого продукта (у всех одно название, различает подпись) */
+    return '<article class="ig-card' + (p.multi ? ' ig-card--stack' : '') + (opt ? ' ig-card--opts' : '') + (p.j !== undefined && p.desc ? ' ig-card--variant' : '') + '" data-key="' + esc(p.key) + '">' +
       /* картинка и название ведут в карточку товара (в прототипе её нет — подсказка); с клавиатуры — через название */
       '<div class="ig-card__media' + (img ? ' ig-card__media--img' : '') + '" data-product aria-hidden="true">' +
       (img ? '<img class="ig-card__img" src="' + esc(imgThumb(img)) + '" data-full="' + esc(imgFull(img)) + '" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer">' : '') +
