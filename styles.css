@@ -1492,9 +1492,10 @@ ul { margin: 0; padding: 0; list-style: none; }
   box-shadow: inset 0 -1px 0 color-mix(in srgb, var(--mast-fg) 50%, transparent);   /* линия – 50 % (26.10); в фокусе контур как был */
   transition: background var(--mast-dur) var(--mast-ease), box-shadow 0.15s var(--mast-ease), border-radius 0.15s var(--mast-ease), opacity 0.15s var(--mast-ease), visibility 0.15s var(--mast-ease);
 }
-.ig-mast .igro-search__input { color: var(--mast-fg); }
+/* цвет текста и иконки меняется плавно, как у остальной шапки (26.10: без перехода они «моргали» при наведении) */
+.ig-mast .igro-search__input { color: var(--mast-fg); transition: color 0.15s var(--mast-ease); }
 .ig-mast .igro-search__input::placeholder { color: currentColor; opacity: 0.7; }
-.ig-mast .igro-search__icon { color: var(--mast-fg); }
+.ig-mast .igro-search__icon { color: var(--mast-fg); transition: color 0.15s var(--mast-ease); }
 .ig-mast .igro-search:focus-within {
   background: var(--surface-card);
   border-radius: var(--radius-field);
