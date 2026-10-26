@@ -922,7 +922,7 @@ ul { margin: 0; padding: 0; list-style: none; }
   border: 1px solid transparent;          /* 23.10: «Выбрать» – только текст, рамка проявляется при наведении */
   border-radius: var(--radius-control);
   background: transparent;
-  color: var(--action-cta);
+  color: var(--surface-inverse);          /* 26.10: текст и стрелка – House #1A3328, как «В корзину» */
   font-family: var(--font-ui);
   font-size: var(--font-size-body-sm);
   font-weight: var(--weight-semibold);
@@ -1035,7 +1035,7 @@ ul { margin: 0; padding: 0; list-style: none; }
   .ig-card__fav:hover { color: var(--text-default); }
   .ig-card__fav[aria-pressed="true"]:hover { color: var(--action-cta); }
   /* 23.10: рамка «Выбрать» проявляется при наведении на всю карточку продукта – кнопка отдельно не подсвечивается */
-  .ig-card--stack:hover .ig-card__btn { border-color: var(--action-cta); }
+  .ig-card--stack:hover .ig-card__btn { border-color: var(--surface-inverse); }   /* рамка – House; рамка карточки остаётся зелёной */
   .ig-card__sq:hover { background: var(--action-dark-hover); border-color: var(--action-dark-hover); }
   .ig-card__sq--bell:hover { background: var(--surface-inverse); border-color: var(--surface-inverse); color: var(--text-on-dark); }
   .ig-card__qty-btn:hover { background: var(--surface-inverse); border-color: var(--surface-inverse); color: var(--text-on-dark); }
