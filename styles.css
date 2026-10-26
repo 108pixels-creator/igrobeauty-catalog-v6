@@ -1736,6 +1736,6 @@ ul { margin: 0; padding: 0; list-style: none; }
 }
 .ig-card__dd-item { padding: 7px 10px; font-size: var(--font-size-body-sm); font-weight: var(--weight-semibold); white-space: nowrap; }
 .ig-card__dd-item.is-off { color: var(--text-muted); font-weight: 400; }
-/* открытый список – над соседними карточками */
-.ig-card.is-dd-open { z-index: 3; }
+/* открытый список – над соседними карточками: z-index только у самого списка (в контексте сетки). У карточки
+   z-index не ставить – она станет своим контекстом наложения, и слой стопки (z-index: −1) ляжет поверх её рамки */
 .ig-card__pane[hidden] { display: none; }
