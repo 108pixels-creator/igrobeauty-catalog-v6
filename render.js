@@ -183,10 +183,11 @@
 
   /* ---------- переключатели в карточке продукта (26.10, design-lab) ----------
      Если товары продукта различаются только окислением, размером и объёмом (p.vo в data.js – 226 продуктов),
-     выбор – прямо в карточке списка: чипы признаков, фото и «В корзину» – выбранного товара. Все товары продукта
-     уже в карточке (блоки покупки каждого – скрытые панели), поэтому при переключении количество в счётчике
-     не сбрасывается. Оттенки и цвета выбирают внутри продукта («Все N товаров»). Нет сочетания с остальным
-     выбором – чип пунктиром, клик выбирает ближайший товар с этим значением */
+     выбор – прямо в карточке списка: выпадающие списки признаков в одну строку, без подписей (26.10, вместо чипов –
+     карточка не растёт в высоту); фото и «В корзину» – выбранного товара. Все товары продукта уже в карточке
+     (блоки покупки каждого – скрытые панели), поэтому при переключении количество в счётчике не сбрасывается.
+     Оттенки и цвета выбирают внутри продукта («Все N товаров»). Значение, которого нет с остальным выбором, в списке
+     серое, но выбирается: подставляется ближайший товар с этим значением (другой объём или процент) */
   var OPT_T = { ox: 'Окисление', size: 'Размер', vol: 'Объём' };
   var OPT_W = { ox: ['вид', 'вида', 'видов'], size: ['размер', 'размера', 'размеров'], vol: ['объём', 'объёма', 'объёмов'] };
   var SIZE_ORDER = { XXS: 0, XS: 1, S: 2, M: 3, L: 4, XL: 5, XXL: 6, XXXL: 7 };
@@ -236,10 +237,6 @@
       return true;
     })[0];
   }
-  function optBadge(c) {
-    return optsOf(c).dims.map(function (d) { return d.vals.length + ' ' + plural(d.vals.length, OPT_W[d.k]); }).join(' · ');
-  }
-
   /* ---------- корзина (имитация) ----------
      «В корзину» и счётчик в карточке меняют корзину, в шапке — кружок с числом товаров и сумма.
      Корзина хранится в localStorage этого браузера: переживает переход между разделами и обновление страницы.
@@ -736,15 +733,22 @@
       '<button type="button" class="ig-card__buybtn" data-buy-btn aria-label="В корзину: ' + esc(name) + '">' +
       '<span class="ig-card__buyicon">' + SVG.cart + SVG.cartAdd + '</span><span class="ig-card__buylabel">В корзину</span></button></div>';
   }
-  /* переключатели признаков и скрытые блоки покупки всех товаров продукта */
+  /* выпадающие списки признаков (Menu ДС) и скрытые блоки покупки всех товаров продукта */
+  function optItemsHTML(p, d, cur) {
+    return d.vals.map(function (val) {
+      var want = {}; for (var k in cur.o) want[k] = cur.o[k]; want[d.k] = val;
+      var on = cur.o[d.k] === val, off = !optFind(p, want);
+      return '<button type="button" class="igro-menu__item ig-card__dd-item' + (off ? ' is-off' : '') + '" role="option" aria-selected="' + on + '"' +
+        (on ? ' aria-current="true"' : '') + ' data-opt="' + d.k + '" data-val="' + esc(val) + '"' +
+        (off ? ' title="С текущим выбором такого товара нет – подставится ближайший"' : '') + '>' + esc(val) + '</button>';
+    }).join('');
+  }
   function optHTML(p, cur) {
     return '<div class="ig-card__opts">' + optsOf(p).dims.map(function (d) {
-      return '<div class="ig-card__opt"><div class="ig-card__opt-l">' + esc(d.t) + ': <b data-opt-cur="' + d.k + '">' + esc(cur.o[d.k]) + '</b></div>' +
-        '<div class="ig-card__opt-v" role="group" aria-label="' + esc(d.t) + '">' + d.vals.map(function (val) {
-          var want = {}; for (var k in cur.o) want[k] = cur.o[k]; want[d.k] = val;
-          var off = !optFind(p, want);
-          return '<button type="button" class="ig-card__chip' + (off ? ' is-off' : '') + '" data-opt="' + d.k + '" data-val="' + esc(val) + '" aria-pressed="' + (cur.o[d.k] === val) + '">' + esc(val) + '</button>';
-        }).join('') + '</div></div>';
+      return '<div class="ig-card__dd" data-dd="' + d.k + '">' +
+        '<button type="button" class="ig-card__dd-btn" data-dd-btn aria-haspopup="listbox" aria-expanded="false" aria-label="' + esc(d.t) + ': ' + esc(cur.o[d.k]) + '">' +
+        '<span data-opt-cur="' + d.k + '">' + esc(cur.o[d.k]) + '</span>' + ic('chevron', 16) + '</button>' +
+        '<div class="igro-menu ig-card__dd-menu" role="listbox" aria-label="' + esc(d.t) + '" hidden>' + optItemsHTML(p, d, cur) + '</div></div>';
     }).join('') + '</div>';
   }
   function optPanesHTML(p, cur) {
@@ -760,8 +764,8 @@
   }
   function cardHTML(p) {
     var opt = p.multi && p.vo ? optCurrent(p) : null;
-    /* у продукта с вариантами — «стопка» и плашка с числом оттенков или вариантов (с переключателями – чем различаются) */
-    var badge = opt ? optBadge(p) : p.multi ? (p.sh ? NUM(p.sh) + ' ' + plural(p.sh, ['оттенок', 'оттенка', 'оттенков'])
+    /* у продукта с вариантами — «стопка» и плашка с числом оттенков или вариантов */
+    var badge = p.multi ? (p.sh ? NUM(p.sh) + ' ' + plural(p.sh, ['оттенок', 'оттенка', 'оттенков'])
       : NUM(p.vc) + ' ' + plural(p.vc, ['вариант', 'варианта', 'вариантов'])) : '';
     var img = opt ? opt.img : p.img;
     var controls = opt ? optPanesHTML(p, opt) : p.multi
@@ -1142,21 +1146,45 @@
     optSel[c.key] = v.key;
     cardEl.querySelectorAll('[data-vkey]').forEach(function (pn) { pn.hidden = pn.getAttribute('data-vkey') !== v.key; });
     cardEl.querySelectorAll('[data-opt]').forEach(function (b) {
-      var d = b.getAttribute('data-opt'), bv = b.getAttribute('data-val'), w = {};
+      var d = b.getAttribute('data-opt'), bv = b.getAttribute('data-val'), w = {}, on = v.o[d] === bv;
       for (var k in v.o) w[k] = v.o[k];
       w[d] = bv;
-      b.setAttribute('aria-pressed', v.o[d] === bv);
+      b.setAttribute('aria-selected', on);
+      if (on) b.setAttribute('aria-current', 'true'); else b.removeAttribute('aria-current');
       b.classList.toggle('is-off', !optFind(c, w));
     });
-    cardEl.querySelectorAll('[data-opt-cur]').forEach(function (s) { s.textContent = v.o[s.getAttribute('data-opt-cur')]; });
+    cardEl.querySelectorAll('[data-opt-cur]').forEach(function (s) {
+      var d = s.getAttribute('data-opt-cur');
+      s.textContent = v.o[d];
+      s.parentNode.setAttribute('aria-label', OPT_T[d] + ': ' + v.o[d]);
+    });
     var media = cardEl.querySelector('.ig-card__media'), im = media.querySelector('.ig-card__img');
     if (v.img) {
       if (!im) { im = document.createElement('img'); im.className = 'ig-card__img'; im.alt = ''; im.setAttribute('referrerpolicy', 'no-referrer'); media.appendChild(im); media.classList.add('ig-card__media--img'); }
       im.setAttribute('data-full', imgFull(v.img));
       im.src = imgThumb(v.img);
     }
-    var b = cardEl.querySelector('[data-opt="' + dim + '"][data-val="' + val.replace(/"/g, '\\"') + '"]');
-    if (b) b.focus({ preventScroll: true });
+  }
+  function closeOptMenus() {
+    document.querySelectorAll('.ig-card__dd.is-open').forEach(function (w) {
+      w.classList.remove('is-open');
+      w.querySelector('.ig-card__dd-menu').hidden = true;
+      w.querySelector('[data-dd-btn]').setAttribute('aria-expanded', 'false');
+      var card = w.closest('.ig-card');
+      if (card) card.classList.remove('is-dd-open');
+    });
+  }
+  function toggleOptMenu(w) {
+    var open = !w.classList.contains('is-open');
+    closeOptMenus();
+    if (!open) return;
+    w.classList.add('is-open');
+    w.closest('.ig-card').classList.add('is-dd-open');
+    var m = w.querySelector('.ig-card__dd-menu');
+    m.hidden = false;
+    w.querySelector('[data-dd-btn]').setAttribute('aria-expanded', 'true');
+    var sel = m.querySelector('[aria-selected="true"]') || m.querySelector('[role="option"]');
+    if (sel) sel.focus({ preventScroll: true });
   }
   function closeSortMenu() {
     document.querySelectorAll('.ig-sortmenu').forEach(function (m) { m.hidden = true; });
@@ -1176,6 +1204,7 @@
 
   document.addEventListener('click', function (e) {
     var t = e.target;
+    if (!t.closest('[data-dd]')) closeOptMenus();
 
     /* быстрые фильтры — применяются сразу */
     var chip = t.closest('.ig-toolbar [data-facet]');
@@ -1288,9 +1317,18 @@
       var a = cardEl && cardEl.querySelector('.ig-card__link'), v = paneEl && cardByKey[itemKey];
       return (a ? a.textContent : '') + (v ? ', ' + v.desc : '');
     };
-    /* переключатель признака: выбранный товар, его фото и блок покупки */
+    /* выпадающий список признака: открыть / закрыть; выбор – товар, его фото и блок покупки */
+    var ddBtn = t.closest('[data-dd-btn]');
+    if (ddBtn && cardEl) { toggleOptMenu(ddBtn.parentNode); return; }
     var optBtn = t.closest('[data-opt]');
-    if (optBtn && cardEl) { pickOpt(cardEl, optBtn.getAttribute('data-opt'), optBtn.getAttribute('data-val')); return; }
+    if (optBtn && cardEl) {
+      var ddWrap = optBtn.closest('[data-dd]');
+      pickOpt(cardEl, optBtn.getAttribute('data-opt'), optBtn.getAttribute('data-val'));
+      closeOptMenus();
+      var tb = ddWrap && ddWrap.querySelector('[data-dd-btn]');
+      if (tb) tb.focus({ preventScroll: true });
+      return;
+    }
     var cardImg = function () { var im = cardEl && cardEl.querySelector('.ig-card__img'); return im ? im.getAttribute('src') : ''; };
     var cardUnit = function () { var v = cardEl && cardEl.querySelector('[data-unit]'); return v ? parseInt(v.getAttribute('data-unit'), 10) || 0 : 0; };
     /* избранное: нажатие заливает сердце */
@@ -1379,6 +1417,15 @@
     var qi = e.target.closest && e.target.closest('.ig-card__qty-in');
     if (qi && e.key === 'Enter') { var cb = qi.closest('[data-buy]').querySelector('[data-buy-btn]'); if (cb) cb.click(); return; }
 
+    /* выпадающий список признака в карточке: ↑/↓ по пунктам, Esc – закрыть и вернуть фокус на плашку */
+    var ddItem = e.target.closest && e.target.closest('.ig-card__dd-item');
+    if (ddItem && /^(ArrowDown|ArrowUp|Escape)$/.test(e.key)) {
+      if (e.key === 'Escape') { var dw = ddItem.closest('[data-dd]'); closeOptMenus(); dw.querySelector('[data-dd-btn]').focus(); e.preventDefault(); return; }
+      var its = Array.prototype.slice.call(ddItem.parentNode.querySelectorAll('[role="option"]'));
+      its[(its.indexOf(ddItem) + (e.key === 'ArrowDown' ? 1 : -1) + its.length) % its.length].focus();
+      e.preventDefault();
+      return;
+    }
     /* меню сортировки, как Menu ДС: ↑/↓ и Home/End двигают фокус по пунктам */
     var item = e.target.closest && e.target.closest('.ig-sortmenu [role="menuitem"]');
     if (item && /^(ArrowDown|ArrowUp|Home|End)$/.test(e.key)) {
