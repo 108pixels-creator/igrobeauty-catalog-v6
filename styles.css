@@ -1399,7 +1399,8 @@ ul { margin: 0; padding: 0; list-style: none; }
   --mast-icon: var(--text-muted);
   --mast-logo-ink: #111111;                /* слово «ИГРО» и полосы знака — по логотипу Figma 2636:1957 */
   --mast-mark-ink: #111111;
-  --mast-mark-accent: #004522;            /* зелёные полосы знака */
+  --mast-accent: #3c8883;                 /* 26.10: цвет верхней плашки «Скидка 15 %» (.ig-topbar) – полосы знака и линия пункта меню */
+  --mast-mark-accent: var(--mast-accent);  /* две полосы знака – и на светлом, и на тёмном фоне (было #004522 и белые) */
   --mast-field: var(--surface-subtle);
   --mast-field-line: transparent;          /* поиск без обводки (21.10); обводка — в фокусе */
   --mast-field-fg: var(--text-default);
@@ -1429,7 +1430,7 @@ ul { margin: 0; padding: 0; list-style: none; }
   --mast-icon: var(--text-on-dark);
   --mast-logo-ink: var(--text-on-dark);
   --mast-mark-ink: var(--text-on-dark);
-  --mast-mark-accent: var(--text-on-dark);   /* логотип для тёмного фона (Figma 2636:1979) — весь белый */
+  --mast-mark-accent: var(--mast-accent);    /* логотип для тёмного фона (Figma 2636:1979) белый, кроме двух полос – цвет плашки (26.10) */
 }
 /* фокус внутри шапки или открытый каталог — белая подложка, как при наведении */
 .ig-mast.is-clear:focus-within,
@@ -1439,7 +1440,7 @@ ul { margin: 0; padding: 0; list-style: none; }
   --mast-icon: var(--text-muted);
   --mast-logo-ink: #111111;
   --mast-mark-ink: #111111;
-  --mast-mark-accent: #004522;
+  --mast-mark-accent: var(--mast-accent);
   --mast-field: var(--surface-subtle);
   --mast-field-line: transparent;
   --mast-field-fg: var(--text-default);
@@ -1451,7 +1452,7 @@ ul { margin: 0; padding: 0; list-style: none; }
     --mast-icon: var(--text-muted);
     --mast-logo-ink: #111111;
     --mast-mark-ink: #111111;
-    --mast-mark-accent: #004522;
+    --mast-mark-accent: var(--mast-accent);
     --mast-field: var(--surface-subtle);
     --mast-field-line: transparent;
     --mast-field-fg: var(--text-default);
@@ -1488,7 +1489,7 @@ ul { margin: 0; padding: 0; list-style: none; }
   border: 0;
   border-radius: var(--radius-field) var(--radius-field) 0 0;
   background: transparent;
-  box-shadow: inset 0 -1px 0 var(--mast-fg);
+  box-shadow: inset 0 -1px 0 color-mix(in srgb, var(--mast-fg) 50%, transparent);   /* линия – 50 % (26.10); в фокусе контур как был */
   transition: background var(--mast-dur) var(--mast-ease), box-shadow 0.15s var(--mast-ease), border-radius 0.15s var(--mast-ease), opacity 0.15s var(--mast-ease), visibility 0.15s var(--mast-ease);
 }
 .ig-mast .igro-search__input { color: var(--mast-fg); }
@@ -1530,9 +1531,9 @@ ul { margin: 0; padding: 0; list-style: none; }
   box-shadow: inset 0 -2px 0 transparent;  /* у референса пункт подчёркивается линией 2 px */
   transition: box-shadow 0.15s var(--mast-ease), color 0.15s var(--mast-ease);
 }
-.ig-mast .ig-navlink[aria-expanded="true"] { background: none; box-shadow: inset 0 -2px 0 currentColor; }
+.ig-mast .ig-navlink[aria-expanded="true"] { background: none; box-shadow: inset 0 -3px 0 var(--mast-accent); }   /* 26.10: 3 px, цвет плашки (было 2 px в цвет текста) */
 @media (hover: hover) {
-  .ig-mast .ig-navlink:hover { background: none; color: inherit; box-shadow: inset 0 -2px 0 currentColor; }
+  .ig-mast .ig-navlink:hover { background: none; color: inherit; box-shadow: inset 0 -3px 0 var(--mast-accent); }
 }
 
 /* сжатая шапка: знак логотипа и иконки, без подписей; меню спрятано */
@@ -1546,7 +1547,7 @@ ul { margin: 0; padding: 0; list-style: none; }
 /* 26.10: в сжатой шапке справа от горизонтального логотипа – слоган «в отношениях надежны, в качестве постоянны!»
    по левому краю, без «22 года с вами»; поиск, избранное, вход и корзина остаются на своих местах
    (меняется только цвет – белая подложка); кнопка-лупа – только на телефоне, где поле поиска сворачивается */
-.ig-mast.is-compact .ig-logo__tagline { align-items: flex-start; text-align: left; }
+.ig-mast.is-compact .ig-logo__tagline { align-items: flex-start; gap: 0; text-align: left; }   /* gap 0 – слоган по центру слова «ИГРО» */
 .ig-mast.is-compact .ig-logo__motto { font-size: var(--font-size-body-sm); }
 .ig-mast .ig-logo__years { max-height: 20px; overflow: hidden; transition: max-height var(--mast-dur) var(--mast-ease), opacity 0.15s var(--mast-ease); }
 .ig-mast.is-compact .ig-logo__years { max-height: 0; opacity: 0; }
