@@ -837,8 +837,8 @@ ul { margin: 0; padding: 0; list-style: none; }
   z-index: 1;
   padding: 5px 13px;
   border-radius: var(--radius-pill);
-  background: var(--surface-brand);
-  color: var(--green-primary);
+  background: var(--surface-sunken);      /* 26.10: нейтральная Ceramic #EDEBE9, как «нет в наличии» (было зелёная Mint) */
+  color: var(--text-default);
   font-family: var(--font-ui);
   font-size: var(--font-size-micro);
   font-weight: var(--weight-bold);
