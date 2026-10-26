@@ -468,6 +468,9 @@ ul { margin: 0; padding: 0; list-style: none; }
   height: var(--dir-icon);
   margin-block: calc(var(--dir-icon) / -2);
   pointer-events: none;
+  /* 26.10: снизу иконка обрезана маской по нижней границе чипа (сам файл не тронут), сверху выступает как раньше.
+     Иконка по центру чипа высотой --size-control-lg – снизу срезается (иконка − чип) / 2 */
+  clip-path: inset(-100px -100px calc((var(--dir-icon) - var(--size-control-lg)) / 2) -100px);
 }
 /* ряд прокручивается по горизонтали и обрезает всё, что выходит по вертикали, — даём иконкам место сверху и снизу */
 .ig-directions:has(.ig-direction--icon) { padding-block: 0; }
