@@ -152,7 +152,7 @@
        sh — число оттенков у красителей: в карточке пишется «N оттенков» вместо «N вариантов» */
     cards.push({
       key: 'p' + p.k, i: i, k: p.k, d: p.d, g: p.g, l: p.l || '', n: p.n, y: p.y, a: p.a || [], img: p.img || '', x: p.x, f: p.f, vc: p.vc,
-      r: PRICE, multi: p.vc > 1, sh: p.sh || 0,
+      r: PRICE, multi: p.vc > 1, sh: p.sh || 0, vo: p.vo,
       arts: p.v.map(function (s) { return s[0]; })
     });
   });
@@ -179,6 +179,65 @@
       seen[b] = c; out.push(c); cardByKey[c.key] = c;
     });
     return (variantCache[k] = out);
+  }
+
+  /* ---------- переключатели в карточке продукта (26.10, design-lab) ----------
+     Если товары продукта различаются только окислением, размером и объёмом (p.vo в data.js – 226 продуктов),
+     выбор – прямо в карточке списка: чипы признаков, фото и «В корзину» – выбранного товара. Все товары продукта
+     уже в карточке (блоки покупки каждого – скрытые панели), поэтому при переключении количество в счётчике
+     не сбрасывается. Оттенки и цвета выбирают внутри продукта («Все N товаров»). Нет сочетания с остальным
+     выбором – чип пунктиром, клик выбирает ближайший товар с этим значением */
+  var OPT_T = { ox: 'Окисление', size: 'Размер', vol: 'Объём' };
+  var OPT_W = { ox: ['вид', 'вида', 'видов'], size: ['размер', 'размера', 'размеров'], vol: ['объём', 'объёма', 'объёмов'] };
+  var SIZE_ORDER = { XXS: 0, XS: 1, S: 2, M: 3, L: 4, XL: 5, XXL: 6, XXXL: 7 };
+  function optNum(s) {
+    if (SIZE_ORDER[s] !== undefined) return SIZE_ORDER[s];
+    var m = /(\d+(?:[.,]\d+)?)/.exec(s);
+    return m ? parseFloat(m[1].replace(',', '.')) : 1e9;
+  }
+  var optCache = Object.create(null);
+  function optsOf(c) {
+    if (optCache[c.k]) return optCache[c.k];
+    var p = D.items[itemByK[c.k]], vars = variantsOf(c.k), at = Object.create(null);
+    p.v.forEach(function (s, j) { at[s[0]] = j; });
+    var keys = Object.keys(p.vo);
+    vars.forEach(function (v) {
+      var j = at[v.arts[0]];
+      v.o = {};
+      keys.forEach(function (d) { v.o[d] = p.vo[d][j]; });
+    });
+    var dims = keys.map(function (d) {
+      var vals = [];
+      vars.forEach(function (v) { if (vals.indexOf(v.o[d]) < 0) vals.push(v.o[d]); });
+      vals.sort(function (a, b) { return optNum(a) - optNum(b) || a.localeCompare(b, 'ru'); });
+      return { k: d, t: OPT_T[d], vals: vals };
+    });
+    var sorted = vars.slice().sort(function (a, b) {
+      for (var i = 0; i < dims.length; i++) {
+        var x = dims[i].vals.indexOf(a.o[dims[i].k]) - dims[i].vals.indexOf(b.o[dims[i].k]);
+        if (x) return x;
+      }
+      return 0;
+    });
+    return (optCache[c.k] = { dims: dims, vars: sorted });
+  }
+  /* выбранный товар продукта – переживает перерисовку списка (фильтры, страницы) */
+  var optSel = Object.create(null);
+  function optCurrent(c) {
+    var o = optsOf(c), v = optSel[c.key] && cardByKey[optSel[c.key]];
+    if (v) return v;
+    v = o.vars.filter(function (x) { return x.ownImg; })[0] || o.vars[0];
+    optSel[c.key] = v.key;
+    return v;
+  }
+  function optFind(c, attrs) {
+    return optsOf(c).vars.filter(function (v) {
+      for (var d in attrs) if (v.o[d] !== attrs[d]) return false;
+      return true;
+    })[0];
+  }
+  function optBadge(c) {
+    return optsOf(c).dims.map(function (d) { return d.vals.length + ' ' + plural(d.vals.length, OPT_W[d.k]); }).join(' · ');
   }
 
   /* ---------- корзина (имитация) ----------
@@ -677,21 +736,45 @@
       '<button type="button" class="ig-card__buybtn" data-buy-btn aria-label="В корзину: ' + esc(name) + '">' +
       '<span class="ig-card__buyicon">' + SVG.cart + SVG.cartAdd + '</span><span class="ig-card__buylabel">В корзину</span></button></div>';
   }
+  /* переключатели признаков и скрытые блоки покупки всех товаров продукта */
+  function optHTML(p, cur) {
+    return '<div class="ig-card__opts">' + optsOf(p).dims.map(function (d) {
+      return '<div class="ig-card__opt"><div class="ig-card__opt-l">' + esc(d.t) + ': <b data-opt-cur="' + d.k + '">' + esc(cur.o[d.k]) + '</b></div>' +
+        '<div class="ig-card__opt-v" role="group" aria-label="' + esc(d.t) + '">' + d.vals.map(function (val) {
+          var want = {}; for (var k in cur.o) want[k] = cur.o[k]; want[d.k] = val;
+          var off = !optFind(p, want);
+          return '<button type="button" class="ig-card__chip' + (off ? ' is-off' : '') + '" data-opt="' + d.k + '" data-val="' + esc(val) + '" aria-pressed="' + (cur.o[d.k] === val) + '">' + esc(val) + '</button>';
+        }).join('') + '</div></div>';
+    }).join('') + '</div>';
+  }
+  function optPanesHTML(p, cur) {
+    return optsOf(p).vars.map(function (v) {
+      var label = p.n + ', ' + v.desc;
+      return '<div class="ig-card__pane" data-vkey="' + esc(v.key) + '"' + (v.key === cur.key ? '' : ' hidden') + '>' +
+        (isOut(v)
+          ? '<div class="ig-card__split"><div class="ig-card__nostock">' + SVG.close + 'нет в наличии</div>' +
+            '<button type="button" class="ig-card__sq ig-card__sq--bell" data-notify aria-label="Сообщить о поступлении: ' + esc(label) + '">' + SVG.bell + '</button></div>'
+          : buyHTML(label)) + '</div>';
+    }).join('') +
+      '<button type="button" class="ig-card__all" data-variants>Все ' + NUM(optsOf(p).vars.length) + ' ' + plural(optsOf(p).vars.length, ['товар', 'товара', 'товаров']) + SVG.chevron + '</button>';
+  }
   function cardHTML(p) {
-    /* у продукта с вариантами — «стопка» и плашка с числом оттенков или вариантов */
-    var badge = p.multi ? (p.sh ? NUM(p.sh) + ' ' + plural(p.sh, ['оттенок', 'оттенка', 'оттенков'])
+    var opt = p.multi && p.vo ? optCurrent(p) : null;
+    /* у продукта с вариантами — «стопка» и плашка с числом оттенков или вариантов (с переключателями – чем различаются) */
+    var badge = opt ? optBadge(p) : p.multi ? (p.sh ? NUM(p.sh) + ' ' + plural(p.sh, ['оттенок', 'оттенка', 'оттенков'])
       : NUM(p.vc) + ' ' + plural(p.vc, ['вариант', 'варианта', 'вариантов'])) : '';
-    var controls = p.multi
+    var img = opt ? opt.img : p.img;
+    var controls = opt ? optPanesHTML(p, opt) : p.multi
       ? '<button type="button" class="ig-card__btn" data-variants aria-label="Выбрать: ' + esc(p.n) + '">Выбрать' + SVG.chevron + '</button>'
       : isOut(p)
         ? '<div class="ig-card__split"><div class="ig-card__nostock">' + SVG.close + 'нет в наличии</div>' +
           '<button type="button" class="ig-card__sq ig-card__sq--bell" data-notify aria-label="Сообщить о поступлении: ' + esc(p.n) + '">' + SVG.bell + '</button></div>'
         : buyHTML(p.n);
     var faved = !!fav[p.key];
-    return '<article class="ig-card' + (p.multi ? ' ig-card--stack' : '') + '" data-key="' + esc(p.key) + '">' +
+    return '<article class="ig-card' + (p.multi ? ' ig-card--stack' : '') + (opt ? ' ig-card--opts' : '') + '" data-key="' + esc(p.key) + '">' +
       /* картинка и название ведут в карточку товара (в прототипе её нет — подсказка); с клавиатуры — через название */
-      '<div class="ig-card__media' + (p.img ? ' ig-card__media--img' : '') + '" data-product aria-hidden="true">' +
-      (p.img ? '<img class="ig-card__img" src="' + esc(imgThumb(p.img)) + '" data-full="' + esc(imgFull(p.img)) + '" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer">' : '') +
+      '<div class="ig-card__media' + (img ? ' ig-card__media--img' : '') + '" data-product aria-hidden="true">' +
+      (img ? '<img class="ig-card__img" src="' + esc(imgThumb(img)) + '" data-full="' + esc(imgFull(img)) + '" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer">' : '') +
       '</div>' +
       (badge ? '<span class="ig-card__badge">' + esc(badge) + '</span>'
         : '<button type="button" class="ig-card__fav" data-fav aria-pressed="' + faved + '" aria-label="В избранное: ' + esc(p.n) + '">' + SVG.heart + '</button>') +
@@ -700,6 +783,7 @@
       (p.l ? '<button type="button" class="ig-card__line" data-card-line="' + esc(lineKey(p)) + '" data-card-line-brand="' + esc(p.g) + '" title="Все товары линии «' + esc(p.l) + '» в разделе">' + esc(p.l) + '</button>' : '') + '</div>' +
       '<div class="ig-card__name" title="' + esc(p.n) + '"><a class="ig-card__link" href="#" data-product>' + soft(p.n) + '</a></div>' +
       (p.desc ? '<div class="ig-card__desc">' + esc(p.desc) + '</div>' : '') +
+      (opt ? optHTML(p, opt) : '') +
       /* цена: слева цена и «Розничная цена» (вправо), справа «Узнать проф. цену» (влево) — макет 2740:3615 */
       '<div class="ig-card__price"><div class="ig-card__price-l">' +
       '<span class="ig-card__price-v" data-unit="' + p.r + '">' + esc(rub(p.r)) + '</span>' +
@@ -1046,6 +1130,34 @@
     beforeProduct = null;
     renderAll(); backToCard();
   });
+  function pickOpt(cardEl, dim, val) {
+    var c = cardByKey[cardEl.getAttribute('data-key')];
+    if (!c || !c.vo) return;
+    var cur = optCurrent(c), want = {};
+    for (var k in cur.o) want[k] = cur.o[k];
+    want[dim] = val;
+    var v = optFind(c, want);
+    if (!v) { var only = {}; only[dim] = val; v = optFind(c, only); }
+    if (!v || v.key === cur.key) return;
+    optSel[c.key] = v.key;
+    cardEl.querySelectorAll('[data-vkey]').forEach(function (pn) { pn.hidden = pn.getAttribute('data-vkey') !== v.key; });
+    cardEl.querySelectorAll('[data-opt]').forEach(function (b) {
+      var d = b.getAttribute('data-opt'), bv = b.getAttribute('data-val'), w = {};
+      for (var k in v.o) w[k] = v.o[k];
+      w[d] = bv;
+      b.setAttribute('aria-pressed', v.o[d] === bv);
+      b.classList.toggle('is-off', !optFind(c, w));
+    });
+    cardEl.querySelectorAll('[data-opt-cur]').forEach(function (s) { s.textContent = v.o[s.getAttribute('data-opt-cur')]; });
+    var media = cardEl.querySelector('.ig-card__media'), im = media.querySelector('.ig-card__img');
+    if (v.img) {
+      if (!im) { im = document.createElement('img'); im.className = 'ig-card__img'; im.alt = ''; im.setAttribute('referrerpolicy', 'no-referrer'); media.appendChild(im); media.classList.add('ig-card__media--img'); }
+      im.setAttribute('data-full', imgFull(v.img));
+      im.src = imgThumb(v.img);
+    }
+    var b = cardEl.querySelector('[data-opt="' + dim + '"][data-val="' + val.replace(/"/g, '\\"') + '"]');
+    if (b) b.focus({ preventScroll: true });
+  }
   function closeSortMenu() {
     document.querySelectorAll('.ig-sortmenu').forEach(function (m) { m.hidden = true; });
     document.querySelectorAll('[data-sortmenu]').forEach(function (b) { b.setAttribute('aria-expanded', 'false'); });
@@ -1169,7 +1281,16 @@
     }
     /* ---- новая карточка (эксперимент design-lab, макет 2740:3615) ---- */
     var cardEl = t.closest('.ig-card');
-    var cardName = function () { var a = cardEl && cardEl.querySelector('.ig-card__link'); return a ? a.textContent : ''; };
+    /* товар внутри карточки продукта с переключателями – своя панель покупки с ключом товара */
+    var paneEl = t.closest('[data-vkey]');
+    var itemKey = paneEl ? paneEl.getAttribute('data-vkey') : cardEl && cardEl.getAttribute('data-key');
+    var cardName = function () {
+      var a = cardEl && cardEl.querySelector('.ig-card__link'), v = paneEl && cardByKey[itemKey];
+      return (a ? a.textContent : '') + (v ? ', ' + v.desc : '');
+    };
+    /* переключатель признака: выбранный товар, его фото и блок покупки */
+    var optBtn = t.closest('[data-opt]');
+    if (optBtn && cardEl) { pickOpt(cardEl, optBtn.getAttribute('data-opt'), optBtn.getAttribute('data-val')); return; }
     var cardImg = function () { var im = cardEl && cardEl.querySelector('.ig-card__img'); return im ? im.getAttribute('src') : ''; };
     var cardUnit = function () { var v = cardEl && cardEl.querySelector('[data-unit]'); return v ? parseInt(v.getAttribute('data-unit'), 10) || 0 : 0; };
     /* избранное: нажатие заливает сердце */
@@ -1188,7 +1309,7 @@
     var buyBtn = t.closest('[data-buy-btn]');
     if (buyBtn && cardEl) {
       var buy = buyBtn.closest('[data-buy]');
-      var key = cardEl.getAttribute('data-key');
+      var key = itemKey;
       if (!buy.classList.contains('is-open')) {
         var total = window.IG_CART.add(key, 1, cardUnit());
         toast('Товар в корзине', '«' + cardName() + '» – 1 шт.' + (total > 1 ? ' Всего этого товара в корзине: ' + total + ' шт.' : ''), cardImg());
