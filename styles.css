@@ -415,7 +415,7 @@ ul { margin: 0; padding: 0; list-style: none; }
 .ig-hero .igro-crumbs__list { justify-content: center; }
 /* зелёная ссылка на кремовом фоне — 4,4:1, ниже AA; ссылки крошек здесь тёмные, подчёркивание остаётся */
 .ig-hero .igro-crumbs__link { color: var(--text-default); }
-.ig-hero__title { margin: var(--space-3) 0 0; color: var(--text-heading); }
+.ig-hero__title { margin: var(--space-3) 0 0; color: var(--text-title); }   /* 26.10: заголовок подкатегории и группы – графитовый Ink #212121 (ДС --text-title), не зелёный --text-heading */
 /* фон-текстура подкатегории (адрес картинки — в --hero-tex у полосы); пока она грузится, видна тёплая полоса */
 .ig-hero--tex { background: var(--surface-promo) var(--hero-tex) center / cover no-repeat; }
 
