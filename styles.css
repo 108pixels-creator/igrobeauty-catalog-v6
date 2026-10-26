@@ -948,10 +948,12 @@ ul { margin: 0; padding: 0; list-style: none; }
   background: var(--surface-inverse);
   color: var(--text-on-dark);
   cursor: pointer;
-  transition: background var(--duration-fast) ease, border-color var(--duration-fast) ease, transform var(--duration-fast) ease;
+  transition: background var(--duration-fast) ease, border-color var(--duration-fast) ease, color var(--duration-fast) ease, transform var(--duration-fast) ease;
 }
 .ig-card__sq svg { width: 18px; height: 18px; }
 .ig-card__sq--bell svg { width: 20px; height: 20px; }   /* под кнопку 34 px (23.10; было 20 и 24) */
+/* колокольчик – линейный, как «В корзину»: рамка и иконка House, заливка – только при наведении (26.10) */
+.ig-card__sq--bell { background: transparent; color: var(--surface-inverse); }
 .ig-card__sq:active { transform: scale(var(--press-scale-icon)); }
 /* счётчик: рамка Silver, кнопки − и + 44 px с зелёной рамкой, число можно ввести вручную */
 .ig-card__qty {
@@ -1007,7 +1009,7 @@ ul { margin: 0; padding: 0; list-style: none; }
   gap: 6px;
   height: var(--card-ctl);
   border-radius: var(--radius-control);
-  background: var(--status-error-tint);
+  background: var(--surface-sunken);      /* 26.10: нейтральная Ceramic #EDEBE9, мало отличается от фона (было Error tint) */
   color: var(--text-muted);
   font-family: var(--font-ui);
   font-size: var(--font-size-body-sm);
@@ -1035,6 +1037,7 @@ ul { margin: 0; padding: 0; list-style: none; }
   /* 23.10: рамка «Выбрать» проявляется при наведении на всю карточку продукта – кнопка отдельно не подсвечивается */
   .ig-card--stack:hover .ig-card__btn { border-color: var(--action-cta); }
   .ig-card__sq:hover { background: var(--action-dark-hover); border-color: var(--action-dark-hover); }
+  .ig-card__sq--bell:hover { background: var(--surface-inverse); border-color: var(--surface-inverse); color: var(--text-on-dark); }
   .ig-card__qty-btn:hover { background: var(--surface-inverse); border-color: var(--surface-inverse); color: var(--text-on-dark); }
 }
 
