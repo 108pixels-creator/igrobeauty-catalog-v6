@@ -828,10 +828,12 @@ ul { margin: 0; padding: 0; list-style: none; }
 .ig-card__fav:active svg { transform: scale(0.9); }
 
 /* плашка «109 оттенков» у стопки — IGRO Mint, Source Sans 13 bold заглавными */
+/* плашка «N вариантов» – по центру на верхней границе карточки: треть над рамкой, две трети внутри (26.10) */
 .ig-card__badge {
   position: absolute;
-  top: 6px;
-  left: 5px;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%);
   z-index: 1;
   padding: 5px 13px;
   border-radius: var(--radius-pill);
@@ -1692,8 +1694,7 @@ ul { margin: 0; padding: 0; list-style: none; }
 }
 
 /* выбор признаков в карточке продукта (26.10): плашки-списки в одну строку, без подписей; список – Menu ДС;
-   значение, которого нет с остальным выбором, – серое, но выбирается (подставится ближайший товар).
-   Под блоком покупки – «Все N товаров» (раскрывает продукт) */
+   значение, которого нет с остальным выбором, – серое, но выбирается (подставится ближайший товар) */
 .ig-card__opts { display: flex; gap: 6px; margin-top: auto; padding-top: 12px; }
 /* списки прижаты к цене: в ряду карточек стоят на одной высоте, как цена, при названии в 1–3 строки */
 .ig-card--opts .ig-card__price { margin-top: 0; }
@@ -1738,20 +1739,3 @@ ul { margin: 0; padding: 0; list-style: none; }
 /* открытый список – над соседними карточками */
 .ig-card.is-dd-open { z-index: 3; }
 .ig-card__pane[hidden] { display: none; }
-.ig-card__all {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 2px;
-  margin: 10px auto 0;
-  padding: 2px 4px;
-  border: 0;
-  background: none;
-  color: var(--text-link);
-  font: var(--font-size-micro)/1.3 var(--font-ui);
-  text-decoration: underline;
-  text-underline-offset: 3px;
-  cursor: pointer;
-}
-.ig-card__all svg { width: 14px; height: 14px; }
-.ig-card--opts .ig-card__controls { padding-top: 20px; }
