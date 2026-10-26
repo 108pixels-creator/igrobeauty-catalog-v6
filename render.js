@@ -583,15 +583,11 @@
     var left = '<button type="button" class="igro-btn igro-btn--sm ' + (n ? 'igro-btn--dark' : 'igro-btn--ghost') + ' ig-filters-btn" data-open="filters" aria-haspopup="dialog">' +
       ic('filter', 18) + 'Фильтры<span class="ig-btn__num' + (n ? '' : ' is-empty') + '"' + (n ? '' : ' aria-hidden="true"') + '>· ' + (n || 0) + '</span></button>';
 
-    /* ключевые бренды раздела. «Все бренды» — только когда ключевых брендов два и больше */
+    /* ключевые бренды раздела. Чипа «Все бренды» нет (26.10): все бренды – когда ни один чип бренда не выбран */
     if (soleBrand) {
       var sb = keyBrands[0], sm = brandType(sb) === 'ex';
       left += '<span class="igro-tag igro-tag--selected' + (sm ? ' ig-tag-hit' : '') + '">' + esc(sb) + (sm ? MEDAL : '') + '</span>';
     } else if (keyBrands.length) {
-      if (keyBrands.length > 1) {
-        var allOn = !sel.g.length;
-        left += '<button type="button" class="igro-tag igro-tag--interactive" aria-pressed="' + (allOn ? 'true' : 'false') + '" data-all-brands>' + tw('Все бренды') + '</button>';
-      }
       var ab = available('g');
       keyBrands.forEach(function (b) {
         if (ab.indexOf(b) > -1) left += chipHTML('g', b, sel.g.indexOf(b) > -1);
@@ -855,7 +851,27 @@
     }
     more.setAttribute('aria-label', label(hidden).replace(/^ещё \((\d+)\)$/, 'Ещё $1 ' + (row.getAttribute('data-clamp') === 'y' ? 'типов продукта' : 'значений')));
   }
+  /* бренды – одна строка (26.10): не помещаются – с конца прячутся невыбранные чипы брендов. Выбранные бренды
+     и чипы с крестиком (линия, продукт, бренд без своего чипа) видны всегда */
+  function clampBrands() {
+    var left = document.querySelector('.ig-toolbar__left');
+    if (!left || !left.firstElementChild) return;
+    var chips = Array.prototype.slice.call(left.querySelectorAll(':scope > .igro-tag[data-facet="g"]'));
+    chips.forEach(function (c) { c.hidden = false; });
+    var top = left.firstElementChild.offsetTop;
+    function wrapped() {
+      for (var i = 0; i < left.children.length; i++) {
+        var el = left.children[i];
+        if (!el.hidden && el.offsetTop > top + 2) return true;
+      }
+      return false;
+    }
+    for (var i = chips.length - 1; i >= 0 && wrapped(); i--) {
+      if (chips[i].getAttribute('aria-pressed') !== 'true') chips[i].hidden = true;
+    }
+  }
   function clampRows() {
+    clampBrands();
     var types = document.querySelector('.ig-qf [data-clamp="y"]');
     if (types) clampRow(types, types.querySelector('.ig-tlink--more'), function (n) { return 'ещё (' + n + ')'; });
     var tech = document.querySelector('.ig-qf [data-clamp="t"]');
@@ -1059,7 +1075,6 @@
       refocus('.ig-toolbar [data-facet="' + ck + '"]', cv);
       return;
     }
-    if (t.closest('[data-all-brands]')) { sel.g = []; afterFilterChange(); refocus('[data-all-brands]'); return; }
     /* технологии: «ещё (N)» раскрывает строку, «свернуть» — сворачивает до двух строк */
     if (t.closest('[data-tech-more]')) { techOpen = true; renderToolbar(); refocus('[data-tech-less]'); return; }
     if (t.closest('[data-tech-less]')) { techOpen = false; renderToolbar(); requestAnimationFrame(function () { refocus('[data-tech-more]'); }); return; }

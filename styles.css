@@ -619,6 +619,7 @@ ul { margin: 0; padding: 0; list-style: none; }
 .ig-toolbar { padding-block: var(--space-4); }
 .ig-toolbar__row { display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap; }
 .ig-toolbar__left { display: flex; align-items: center; gap: var(--space-2_5); flex-wrap: wrap; flex: 1; min-width: 0; }
+.ig-toolbar__left > .igro-tag[hidden] { display: none; }   /* чипы брендов, не поместившиеся в строку (26.10) */
 .ig-toolbar__right { display: flex; align-items: center; gap: var(--space-4); margin-left: auto; white-space: nowrap; }
 
 /* «Фильтры» — Button sm; ширина под «Фильтры · 99», без счётчика содержимое по центру */
@@ -1581,7 +1582,7 @@ ul { margin: 0; padding: 0; list-style: none; }
 /* иконка «Каталога» – сплошная заливка без обводки (просьба 21.10): те же четыре плитки, залитые */
 .ig-navlink .ig-ic--grid { --ic: url("data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20viewBox=%270%200%2024%2024%27%20fill=%27%23000%27%3E%3Crect%20x=%273%27%20y=%273%27%20width=%278%27%20height=%2710%27%20rx=%271.5%27/%3E%3Crect%20x=%2713%27%20y=%273%27%20width=%278%27%20height=%276%27%20rx=%271.5%27/%3E%3Crect%20x=%2713%27%20y=%2711%27%20width=%278%27%20height=%2710%27%20rx=%271.5%27/%3E%3Crect%20x=%273%27%20y=%2715%27%20width=%278%27%20height=%276%27%20rx=%271.5%27/%3E%3C/svg%3E"); }
 
-/* выбранные чипы брендов («Все бренды», бренд, линия с крестиком) – не заливка, а тёмная обводка 2 px
+/* выбранные чипы брендов (бренд, линия с крестиком; «Все бренды» убран 26.10) – не заливка, а тёмная обводка 2 px
    (рамка 1 px + внутренняя тень 1 px – размер чипа не меняется); меньше внимания, чем залитый чип (просьба 21.10) */
 .ig-toolbar .igro-tag[aria-pressed="true"],
 .ig-toolbar .igro-tag--selected {
