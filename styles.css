@@ -385,8 +385,10 @@ ul { margin: 0; padding: 0; list-style: none; }
     border-right: 1px solid var(--border-subtle);
     align-self: stretch;
   }
-  .ig-mega--sidebar .ig-mega__cat { position: relative; width: 100%; text-align: left; padding: var(--space-2_5) var(--space-3); }
-  /* выбранный раздел — тёмная плашка, которая переезжает к наведённому пункту (позицию ставит script.js) */
+  .ig-mega--sidebar .ig-mega__cat { position: relative; width: 100%; text-align: left; padding: var(--space-2_5) var(--space-5) var(--space-2_5) var(--space-3); }
+  /* выбранный раздел — контур графитом 1,5 px без заливки (27.10, вариант 2 из output/2026-10-27_mega-category-highlight;
+     до того – тёмная плашка House), переезжает к наведённому пункту (позицию ставит script.js); текст полужирный,
+     справа – стрелка ›, «ведущая» в колонки раздела */
   .ig-mega--sidebar .ig-mega__cats { position: relative; }
   .ig-mega--sidebar .ig-mega__marker {
     display: block;
@@ -394,13 +396,26 @@ ul { margin: 0; padding: 0; list-style: none; }
     top: 0; left: 0; right: var(--space-5);
     height: var(--marker-h, 0);
     border-radius: var(--radius-field);
-    background: var(--surface-inverse);
+    box-shadow: inset 0 0 0 1.5px var(--text-default);
     transform: translateY(var(--marker-y, 0));
     pointer-events: none;
     transition: transform calc(var(--duration-base) / 2) var(--ease-standard), height calc(var(--duration-base) / 2) var(--ease-standard);   /* вдвое быстрее (23.10) */
   }
   .ig-mega--sidebar .ig-mega__cats.is-instant .ig-mega__marker { transition: none; }
-  .ig-mega--sidebar .ig-mega__cat.is-active { background: transparent; }
+  .ig-mega--sidebar .ig-mega__cat.is-active { background: transparent; color: var(--text-default); font-weight: var(--weight-semibold); }
+  .ig-mega--sidebar .ig-mega__cat::after {
+    content: "";
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    width: 7px; height: 7px;
+    border: solid currentColor;
+    border-width: 1.5px 1.5px 0 0;
+    opacity: 0;
+    transform: translate(-4px, -50%) rotate(45deg);
+    transition: opacity calc(var(--duration-base) / 2) ease, transform calc(var(--duration-base) / 2) var(--ease-standard);
+  }
+  .ig-mega--sidebar .ig-mega__cat.is-active::after { opacity: 1; transform: translate(0, -50%) rotate(45deg); }
   .ig-mega--sidebar .ig-mega__cat { transition: color calc(var(--duration-base) / 2) var(--ease-standard), background calc(var(--duration-fast) / 2) ease; }   /* вдвое быстрее (23.10) */
   .ig-mega--sidebar .ig-mega__cols { grid-area: 1 / 2; }
   .ig-mega--sidebar .ig-mega__links a,

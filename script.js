@@ -53,7 +53,7 @@
   var mainnav = document.querySelector('.ig-mainnav');
   var megaByHover = false;
   function megaOpen() { return !!megaEl && megaEl.classList.contains('is-open'); }
-  /* тёмная плашка выбранного раздела: переезжает к пункту; instant — без анимации (первое открытие, смена размера окна) */
+  /* контур выбранного раздела (до 27.10 – тёмная плашка): переезжает к пункту; instant — без анимации (первое открытие, смена размера окна) */
   function moveMarker(cat, instant) {
     var cats = cat && cat.parentNode;
     if (!cats) return;
