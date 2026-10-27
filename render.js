@@ -786,7 +786,9 @@
       '<div class="ig-card__brandrow"><button type="button" class="ig-card__brand" data-card-brand="' + esc(p.g) + '" title="Все товары бренда в разделе">' + esc(p.g) + '</button>' +
       (p.l ? '<button type="button" class="ig-card__line" data-card-line="' + esc(lineKey(p)) + '" data-card-line-brand="' + esc(p.g) + '" title="Все товары линии «' + esc(p.l) + '» в разделе">' + esc(p.l) + '</button>' : '') + '</div>' +
       '<div class="ig-card__name" title="' + esc(p.n) + '"><a class="ig-card__link" href="#" data-product>' + soft(p.n) + '</a></div>' +
-      (p.desc ? '<div class="ig-card__desc">' + esc(p.desc) + '</div>' : '') +
+      /* подпись (объём, оттенок…) – часть названия товара: та же ссылка в карточку товара, подчёркивается вместе с названием
+         (27.10); с клавиатуры – через название, поэтому вне порядка табуляции */
+      (p.desc ? '<div class="ig-card__desc"><a class="ig-card__desc-link" href="#" data-product tabindex="-1">' + esc(p.desc) + '</a></div>' : '') +
       (opt ? optHTML(p, opt) : '') +
       /* цена: слева цена и «Розничная цена» (вправо), справа «Узнать проф. цену» (влево) — макет 2740:3615 */
       '<div class="ig-card__price"><div class="ig-card__price-l">' +
@@ -1304,8 +1306,8 @@
       e.preventDefault();
       var pc = prod.closest('.ig-card');
       if (pc && pc.classList.contains('ig-card--stack')) { openProduct(pc.getAttribute('data-key')); return; }
-      var pn = pc && pc.querySelector('.ig-card__name');
-      toast('Карточка товара', 'Здесь откроется страница товара' + (pn ? ' «' + pn.textContent + '»' : '') + '. В прототипе её нет.');
+      var pn = pc && pc.querySelector('.ig-card__name'), pd = pc && pc.querySelector('.ig-card__desc');
+      toast('Карточка товара', 'Здесь откроется страница товара' + (pn ? ' «' + pn.textContent + (pd ? ', ' + pd.textContent : '') + '»' : '') + '. В прототипе её нет.');
       return;
     }
     /* ---- новая карточка (эксперимент design-lab, макет 2740:3615) ---- */
